@@ -1,6 +1,6 @@
 ---
 - name: Print Hello World message
-  hosts: localhost
+  hosts: POC
   gather_facts: false
 
   tasks:
