@@ -2,11 +2,19 @@
 - name: Print Hello World message
   hosts: "{{ target_hosts }}"
   gather_facts: false
+  vars:
+    build_version: "{{ semaphore_vars.task_details.target_version | default(None) }}"
+    deploy_version: "{{ semaphore_vars.task_details.incoming_version | default(None) }}"
 
   tasks:
     - name: Display Hello World
       debug:
         msg: "Hello World from Ansible!" #" Version {{semaphore_vars.task_details.target_version}}"
+
+    - name: Display build Version
+      debug:
+        msg: "Build Version is {{ build_version }}"
+
     - name: Display deploy Version
       debug:
-        msg: "Deploy Version is {{ semaphore_vars.task_details.incoming_version }}"
+        msg: "Deploy Version is {{ deploy_version }}"
