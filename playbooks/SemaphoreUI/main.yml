@@ -1,0 +1,276 @@
+---
+- name: 
+  hosts: localhost
+  become: true
+  vars:
+    mariadb_root_password: "R0OtPassw0rd!"
+    mariadb_databases: "semaphore"
+    mariadb_user: "semaphore"
+    mariadb_password: "S3cr3tPassw0rd!"
+    mariadb_host: "127.0.0.1"
+    semaphore_version: "3.6.10"
+    semaphore_install_dir: "/apps/Semaphore"
+    semaphore_config_file: "{{ semaphore_install_dir }}/config/config.json"
+    semaphore_service_file: "/etc/systemd/system/semaphore.service"
+    semaphore_port: 3000
+    semaphore_rpm: semaphore_2.15.0_linux_amd64.rpm
+    semaphore_repo: "https://github.com/semaphoreui/semaphore/releases/download/v2.15.0/"
+    semaphore_admin: admin
+    semaphore_admin_password: Admin123
+    semaphore_admin_email: svcansible@gmail.com
+    semaphore_admin_name: Admin User
+  tasks:
+    - name: Install required packages
+      yum:
+        name:
+          - epel-release
+          - git
+          - wget
+          - mariadb-server
+          - mariadb
+          - gcc
+          - make
+          - go
+          - python3-pip
+        state: present
+      tags: install
+    
+    - name: Install Pip Libraries for MariaDB
+      pip:
+        name: 
+          - mysql-connector-python
+          - PyMySQL
+        state: present
+      tags: install
+
+    - name: Start and enable MariaDB service
+      service:
+        name: mariadb
+        state: started 
+        enabled: true
+      tags: mariadb
+
+    # - name: Secure MariaDB installation
+    #   mysql_secure_installation:
+    #     login_user: root
+    #     login_password: ""
+    #     root_password: "{{ mariadb_root_password }}"
+    #     remove_anonymous_user: true 
+    #     disallow_root_login_remotely: true
+    #     remove_test_database: true
+    #     state: present
+    #   tags: mariadb
+    #   ignore_errors: true
+
+    - name: Check if root password is set
+      mysql_user:
+        name: root
+        password: "{{ mariadb_root_password }}"
+        login_user: root
+        login_password: "{{ mariadb_root_password }}"
+        state: present
+      register: root_password_check
+      ignore_errors: true
+      tags: mariadb
+
+    - name: Set MariaDB root password
+      mysql_user:
+        name: root
+        host: localhost
+        password: "{{ mariadb_root_password }}"
+        login_unix_socket: /var/lib/mysql/mysql.sock
+        check_implicit_admin: true
+        state: present
+      when: root_password_check.failed 
+      tags: mariadb
+
+    - name: Disable remote root login
+      mysql_user:
+        name: root
+        host: "{{ item }}"
+        state: absent
+        login_user: root
+        login_password: "{{ mariadb_root_password }}"
+      loop:
+        - "{{ ansible_fqdn }}"
+        - "{{ ansible_hostname }}"
+        - "%"
+      tags: mariadb
+
+    - name: Remove anonymous users
+      mysql_user:
+        name: ''
+        host: "{{ item }}"  
+        state: absent
+        login_user: root
+        login_password: "{{ mariadb_root_password }}"
+      loop:
+        - localhost
+        - "{{ ansible_fqdn }}"
+        - "{{ ansible_hostname }}"  
+        - "%"
+      tags: mariadb
+
+    - name: Remove test database
+      mysql_db:
+        name: test
+        state: absent
+        login_user: root
+        login_password: "{{ mariadb_root_password }}"
+      tags: mariadb
+
+    - name: Create MariaDB database
+      mysql_db:
+        name: "{{ mariadb_databases }}"
+        state: present
+        login_user: root
+        login_password: "{{ mariadb_root_password }}"
+      tags: mariadb
+
+    - name: Create MariaDB user
+      mysql_user:
+        name: "{{ mariadb_user }}"
+        host: "{{ item }}"
+        plugin: "mysql_native_password"
+        password: "{{ mariadb_password }}"  
+        priv: "{{ mariadb_databases }}.*:ALL"
+        state: present
+        login_user: root
+        login_password: "{{ mariadb_root_password }}"
+      tags: mariadb
+      with_items:
+        - localhost
+        - 127.0.0.1
+        - "{{ ansible_hostname }}"  
+        - "{{ mariadb_host }}"
+
+    - name: Flush privileges
+      community.mysql.mysql_query:
+        login_user: root
+        login_password: "{{ mariadb_root_password | default('') }}"
+        query: "FLUSH PRIVILEGES;"
+    
+    - name: Verify semaphore DB user can connect
+      community.mysql.mysql_query:
+        login_user: "{{ mariadb_user }}"
+        login_password: "{{ mariadb_password }}"
+        login_host: "{{ mariadb_host }}"
+        query: "SELECT NOW();"
+
+    - name: Download and install Semaphore
+      block:
+        - name: Download Semaphore source code
+          get_url:
+            url: "{{ semaphore_repo}}{{ semaphore_rpm }}"
+            dest: "/tmp/{{ semaphore_rpm }}"
+
+        - name: Install Semaphore
+          yum:
+            name: "/tmp/{{ semaphore_rpm }}"
+            disable_gpg_check: yes
+            state: present
+          
+        - name: Create Semaphore install directory
+          file:
+            name: "{{ semaphore_install_dir }}"
+            state: directory
+            mode: '0755'
+        
+        - name: Run semaphore setup
+          ansible.builtin.expect:
+            command: semaphore setup
+            responses:
+              "What database to use.*\\(default 1\\):": 
+                - "1"
+              "db Hostname \\(default 127.0.0.1:3306\\):": 
+                - "{{ mariadb_host }}:3306"
+              "db User \\(default root\\):":  
+                - "{{ mariadb_user }}"
+              "db Password:": 
+                - "{{ mariadb_password }}"
+              "db Name \\(default semaphore\\):": 
+                - "{{ mariadb_databases }}"
+              "Playbook path \\(default /tmp/semaphore\\):": 
+                - "{{ semaphore_install_dir }}/playbooks"
+              "Public URL \\(optional, example: https://example.com/semaphore\\):": 
+                - "http://semaphore.sanjay-lab.local:3000"
+              "Enable email alerts\\?.*\\(default no\\):": 
+                - "no"
+              "Enable telegram alerts\\?.*\\(default no\\):": 
+                - "no"
+              "Enable slack alerts\\?.*\\(default no\\):": 
+                - "no"
+              "Enable Rocket.Chat alerts\\?.*\\(default no\\):": 
+                - "no"
+              "Enable Microsoft Team Channel alerts\\?.*\\(default no\\):": 
+                - "no"
+              "Enable LDAP authentication\\?.*\\(default no\\):": 
+                - "no"
+              "Config output directory \\(default /.*\\):": 
+                - "{{ semaphore_install_dir }}"
+              ".*Username:": 
+                - "{{ semaphore_admin }}"
+              ".*Email:": 
+                - "{{ semaphore_admin_email }}"
+              ".*Your name:": 
+                - "{{ semaphore_admin_name }}"
+              ".*Password:": 
+                - "{{ semaphore_admin_password }}"
+          register: semaphore_setup_output
+
+
+        - name: Show setup output
+          ansible.builtin.debug:
+            var: semaphore_setup_output.stdout_lines
+
+        # - name: Initialize Semaphore
+        #   command: >
+        #     semaphore setup --config "{{ semaphore_config_file }}"
+        #     --db-driver mysql
+        #     --db-host localhost
+        #     --db-port 3306
+        #     --db-user "{{ mariadb_user }}"
+        #     --db-password "{{ mariadb_password }}"
+        #     --db-name "{{ mariadb_databases }}"
+        #     --http-port "{{ semaphore_port }}"
+        #     --admin-user "{{ semaphore_admin }}"
+        #     --admin-password "{{ semaphore_admin_password }}"
+        #     --admin-name "{{ semaphore_admin_name }}"
+        #     --admin-email "{{ semaphore_admin_email }}"
+        #   args:
+        #     creates: "{{ semaphore_config_file }}"
+
+        - name: Create systemd service file for Semaphore
+          copy:
+            dest: "{{ semaphore_service_file }}"
+            content: |
+              [Unit]
+              Description=Semaphore Service
+              After=network.target
+
+              [Service]
+              ExecStart=/bin/semaphore server --config {{ semaphore_config_file }}
+              Restart=always
+              User=root
+              Group=root
+              Environment=PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+              Environment=NODE_ENV=production
+              WorkingDirectory={{ semaphore_install_dir }}
+
+              [Install]
+              WantedBy=multi-user.target
+          notify: 
+            - Reload systemd
+            - Start Semaphore
+      tags: semaphore
+  handlers:
+    - name: Reload systemd
+      command: systemctl daemon-reload
+      tags: semaphore
+    
+    - name: Start Semaphore
+      service:
+        name: semaphore
+        state: started
+        enabled: true
+      tags: semaphore
