@@ -1,0 +1,65 @@
+---
+- name: Deploy k3s
+  hosts: localhost
+  become: yes
+  vars:
+    pkg_path: "/tmp/k3s"
+    airgap_file: "k3s-airgap-images-amd64.tar.zst"
+    helm_zip: "helm-v3.19.0-linux-amd64.tar.gz"
+    k3s_selinux_rpm: "k3s-selinux-1.6-1.el8.noarch.rpm"
+  tasks:
+    - name: Copy required files to destination
+      copy:
+        src: "k3s"
+        dest: "{{ pkg_path }}"
+        mode: '0755'
+    - name: Create required directories
+      file:
+        name: "{{ item }}"
+        state: directory
+        mode: '0755'
+        recursive: yes
+      with_items:
+        - /var/lib/rancher/k3s/agent/images/
+        - /etc/rancher/k3s
+        - /var/lib/rancher/k3s/server/manifests
+    - name: Copy the Airgap Install file
+      copy:
+        src: "{{ pkg_path }}/{{ airgap_file }}"
+        dest: /var/lib/rancher/k3s/agent/images/{{ airgap_file }}
+        mode: '0644'
+    - name: Create cache file and skip traeffic for k3s
+      file:
+        path: "{{ item }}"
+        state: touch
+        mode: '0644'
+      with_items:
+        - /var/lib/rancher/k3s/agent/images/.cache.json
+        - /var/lib/rancher/k3s/server/manifests/traefik.yaml.skip
+    - name: Install k3s-selinux
+      yum:
+        name: "{{ pkg_path}}/{{ k3s_selinux_rpm }}"
+    - name: Unzip helm binary
+      unarchive:
+        src: "{{ pkg_path }}/{{ helm_zip }}"
+        dest: "{{ pkg_path }}"
+        remote_src: yes
+        mode: '0755'
+    - name: Install k3s and helm binaries
+      copy:
+        src: "{{ pkg_path }}/{{ item }}"
+        dest: "/usr/local/bin/{{ item }}"
+        mode: '0777'
+      with_items:
+        - k3s
+        - linux-amd64/helm
+    - name: Modify install.sh file permissions
+      file: 
+        path: "{{ pkg_path }}/install.sh"
+        mode: '0755'
+    - name: Install k3s using install.sh script # For Installing service as Non root user add "INSTALL_K3S_SYSTEMD_DIR='/home/<user_home_dir>/.config/systemd/user'" to the command
+      command: "INSTALL_K3S_SKIP_DOWNLOAD=true INSTALL_K3S_EXEC='--disable=traefik' INSTALL_K3S_EXEC='server' sh install.sh"
+      args:
+        chdir: "{{ pkg_path}}"
+      
+
