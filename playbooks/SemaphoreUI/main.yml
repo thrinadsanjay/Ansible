@@ -3,10 +3,10 @@
   hosts: localhost
   become: true
   vars:
-    mariadb_root_password: "R0OtPassw0rd!"
+    mariadb_root_password: "R0OtPassw0rd"
     mariadb_databases: "semaphore"
     mariadb_user: "semaphore"
-    mariadb_password: "S3cr3tPassw0rd!"
+    mariadb_password: "S3cr3tPassw0rd"
     mariadb_host: "127.0.0.1"
     semaphore_version: "3.6.10"
     semaphore_install_dir: "/apps/Semaphore"
@@ -138,10 +138,7 @@
         login_user: root
         login_password: "{{ mariadb_root_password }}"
       tags: mariadb
-      with_items:
-        - localhost
-        - 127.0.0.1
-        - "{{ ansible_hostname }}"  
+      with_items:  
         - "{{ mariadb_host }}"
 
     - name: Flush privileges
@@ -155,7 +152,12 @@
         login_user: "{{ mariadb_user }}"
         login_password: "{{ mariadb_password }}"
         login_host: "{{ mariadb_host }}"
-        query: "SELECT NOW();"
+        query: "SELECT NOW();"  
+
+    - name: Check if semaphore is already installed
+      stat: 
+        path: /usr/local/bin/semaphore
+      register: semaphore_binary
 
     - name: Download and install Semaphore
       block:
@@ -163,83 +165,95 @@
           get_url:
             url: "{{ semaphore_repo}}{{ semaphore_rpm }}"
             dest: "/tmp/{{ semaphore_rpm }}"
+          when: not semaphore_binary.stat.exists
+          tags: semaphore
 
         - name: Install Semaphore
           yum:
             name: "/tmp/{{ semaphore_rpm }}"
             disable_gpg_check: yes
             state: present
+          when: not semaphore_binary.stat.exists
+          tags: semaphore
+
+        - name: Check if semaphore admin user exists
+          community.mysql.mysql_query:
+            login_user: "{{ mariadb_user }}"
+            login_password: "{{ mariadb_password }}"
+            login_host: "{{ mariadb_host }}"
+            login_db: "{{ mariadb_databases }}"
+            query: "SELECT COUNT(*) as count FROM user WHERE username='{{ semaphore_admin }}';"
+          register: semaphore_admin_check
           
-        - name: Create Semaphore install directory
+        - name: Create Semaphore directoryies
           file:
-            name: "{{ semaphore_install_dir }}"
+            name: "{{ item }}"
             state: directory
             mode: '0755'
+          with_items:
+            - "{{ semaphore_install_dir }}"
+            - "{{ semaphore_install_dir }}/playbooks"
+            - "{{ semaphore_install_dir }}/config"
+            - "{{ semaphore_install_dir }}/logs"
+          tags: semaphore
+
+        - name: Create semaphore config.json
+          ansible.builtin.copy:
+            dest: "{{ semaphore_config_file }}"
+            content: |
+              {
+                "mysql": {
+                  "host": "{{ mariadb_host }}:3306",
+                  "user": "{{ mariadb_user }}",
+                  "pass": "{{ mariadb_password }}",
+                  "name": "{{ mariadb_databases }}"
+                },
+                "dialect": "mysql",
+                "tmp_path": "{{ semaphore_install_dir }}/tmp",
+                "playbook_path": "{{ semaphore_install_dir }}/playbooks",
+                "port": ":{{ semaphore_port }}",
+                "cookie_hash": "3bf5b8e8358853ca9d23ba9082c1e4c1",
+                "cookie_encryption": "4efb36946df90b466279d19dba760f8b"
+              }
+            mode: '0640'
+            owner: "{{ ansible_user_id }}"
+            group: "{{ ansible_user_id }}"
+          tags: semaphore
+
+        - name: Run semaphore DB migrations
+          ansible.builtin.command: >
+            semaphore migrate --config {{ semaphore_config_file }}
+          args:
+            chdir: "{{ semaphore_install_dir }}"
+          register: semaphore_migrate
+          changed_when: "'Applied' in semaphore_migrate.stdout or 'No change' in semaphore_migrate.stdout"
+          tags: semaphore
+
+        - name: Create Semaphore admin user
+          ansible.builtin.command: >
+            semaphore user add
+            --admin
+            --login "{{ semaphore_admin }}"
+            --name "{{ semaphore_admin_name }}"
+            --email "{{ semaphore_admin_email }}"
+            --password "{{ semaphore_admin_password }}"
+            --config {{ semaphore_config_file }}
+          args:
+            chdir: "{{ semaphore_install_dir }}"
+          register: semaphore_admin_create
+          when: semaphore_admin_check.query_result[0].count|int == 0
+          changed_when: "'Created' not in semaphore_admin_create.stdout"
+          failed_when: semaphore_admin_create.rc != 0 and "'already exists' not in semaphore_admin_create.stderr"
+          tags: semaphore
+
+        - name: Ensure port is open in firewall
+          ansible.builtin.command: >
+            firewall-cmd --add-port={{ semaphore_port }}/tcp --permanent
+          register: firewall_cmd
+          changed_when: "'success' in firewall_cmd.stdout"
+          failed_when: firewall_cmd.rc != 0 and "'already' not in firewall_cmd.stderr"
+          tags: semaphore
         
-        - name: Run semaphore setup
-          ansible.builtin.expect:
-            command: semaphore setup
-            responses:
-              "What database to use.*\\(default 1\\):": 
-                - "1"
-              "db Hostname \\(default 127.0.0.1:3306\\):": 
-                - "{{ mariadb_host }}:3306"
-              "db User \\(default root\\):":  
-                - "{{ mariadb_user }}"
-              "db Password:": 
-                - "{{ mariadb_password }}"
-              "db Name \\(default semaphore\\):": 
-                - "{{ mariadb_databases }}"
-              "Playbook path \\(default /tmp/semaphore\\):": 
-                - "{{ semaphore_install_dir }}/playbooks"
-              "Public URL \\(optional, example: https://example.com/semaphore\\):": 
-                - "http://semaphore.sanjay-lab.local:3000"
-              "Enable email alerts\\?.*\\(default no\\):": 
-                - "no"
-              "Enable telegram alerts\\?.*\\(default no\\):": 
-                - "no"
-              "Enable slack alerts\\?.*\\(default no\\):": 
-                - "no"
-              "Enable Rocket.Chat alerts\\?.*\\(default no\\):": 
-                - "no"
-              "Enable Microsoft Team Channel alerts\\?.*\\(default no\\):": 
-                - "no"
-              "Enable LDAP authentication\\?.*\\(default no\\):": 
-                - "no"
-              "Config output directory \\(default /.*\\):": 
-                - "{{ semaphore_install_dir }}"
-              ".*Username:": 
-                - "{{ semaphore_admin }}"
-              ".*Email:": 
-                - "{{ semaphore_admin_email }}"
-              ".*Your name:": 
-                - "{{ semaphore_admin_name }}"
-              ".*Password:": 
-                - "{{ semaphore_admin_password }}"
-          register: semaphore_setup_output
-
-
-        - name: Show setup output
-          ansible.builtin.debug:
-            var: semaphore_setup_output.stdout_lines
-
-        # - name: Initialize Semaphore
-        #   command: >
-        #     semaphore setup --config "{{ semaphore_config_file }}"
-        #     --db-driver mysql
-        #     --db-host localhost
-        #     --db-port 3306
-        #     --db-user "{{ mariadb_user }}"
-        #     --db-password "{{ mariadb_password }}"
-        #     --db-name "{{ mariadb_databases }}"
-        #     --http-port "{{ semaphore_port }}"
-        #     --admin-user "{{ semaphore_admin }}"
-        #     --admin-password "{{ semaphore_admin_password }}"
-        #     --admin-name "{{ semaphore_admin_name }}"
-        #     --admin-email "{{ semaphore_admin_email }}"
-        #   args:
-        #     creates: "{{ semaphore_config_file }}"
-
         - name: Create systemd service file for Semaphore
           copy:
             dest: "{{ semaphore_service_file }}"
