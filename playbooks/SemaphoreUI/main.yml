@@ -1,5 +1,5 @@
 ---
-- name: 
+- name: Install and configure Semaphore with MariaDB
   hosts: localhost
   become: true
   vars:
@@ -132,14 +132,14 @@
         name: "{{ mariadb_user }}"
         host: "{{ item }}"
         plugin: "mysql_native_password"
-        password: "{{ mariadb_password }}"  
+        password: "{{ mariadb_password }}"
         priv: "{{ mariadb_databases }}.*:ALL"
         state: present
         login_user: root
         login_password: "{{ mariadb_root_password }}"
-      tags: mariadb
-      with_items:  
+      loop:
         - "{{ mariadb_host }}"
+      tags: mariadb
 
     - name: Flush privileges
       community.mysql.mysql_query:
@@ -154,18 +154,18 @@
         login_host: "{{ mariadb_host }}"
         query: "SELECT NOW();"  
 
-    - name: Check if semaphore is already installed
-      stat: 
-        path: /usr/local/bin/semaphore
-      register: semaphore_binary
-
     - name: Download and install Semaphore
       block:
+        - name: Check if semaphore is already installed
+          stat: 
+            path: /usr/bin/semaphore
+          register: semaphore_binary
+
         - name: Download Semaphore source code
           get_url:
             url: "{{ semaphore_repo}}{{ semaphore_rpm }}"
             dest: "/tmp/{{ semaphore_rpm }}"
-          when: not semaphore_binary.stat.exists
+          when: semaphore_binary.stat.exists is false
           tags: semaphore
 
         - name: Install Semaphore
@@ -173,7 +173,7 @@
             name: "/tmp/{{ semaphore_rpm }}"
             disable_gpg_check: yes
             state: present
-          when: not semaphore_binary.stat.exists
+          when: semaphore_binary.stat.exists is false
           tags: semaphore
 
         - name: Check if semaphore admin user exists
@@ -184,13 +184,18 @@
             login_db: "{{ mariadb_databases }}"
             query: "SELECT COUNT(*) as count FROM user WHERE username='{{ semaphore_admin }}';"
           register: semaphore_admin_check
-          
-        - name: Create Semaphore directoryies
+
+        - name: Debug Semaphore Admin Check
+          debug:
+            var: semaphore_admin_check
+          when: semaphore_admin_check.query_result[0][0].count == '0'
+
+        - name: Create Semaphore directories
           file:
-            name: "{{ item }}"
+            path: "{{ item }}"
             state: directory
             mode: '0755'
-          with_items:
+          loop:
             - "{{ semaphore_install_dir }}"
             - "{{ semaphore_install_dir }}/playbooks"
             - "{{ semaphore_install_dir }}/config"
@@ -210,12 +215,11 @@
                 },
                 "dialect": "mysql",
                 "tmp_path": "{{ semaphore_install_dir }}/tmp",
-                "playbook_path": "{{ semaphore_install_dir }}/playbooks",
-                "port": ":{{ semaphore_port }}",
                 "cookie_hash": "3bf5b8e8358853ca9d23ba9082c1e4c1",
-                "cookie_encryption": "4efb36946df90b466279d19dba760f8b"
+                "cookie_encryption": "4efb36946df90b466279d19dba760f8b",
+                "access_key_encryption": "ZOX2Wl0fKOarzo2O+gifMAbEWskFgrbolPg7b8c8O4I="
               }
-            mode: '0640'
+            mode: '0666'
             owner: "{{ ansible_user_id }}"
             group: "{{ ansible_user_id }}"
           tags: semaphore
@@ -241,7 +245,7 @@
           args:
             chdir: "{{ semaphore_install_dir }}"
           register: semaphore_admin_create
-          when: semaphore_admin_check.query_result[0].count|int == 0
+          when: semaphore_admin_check.query_result[0][0].count == '0'
           changed_when: "'Created' not in semaphore_admin_create.stdout"
           failed_when: semaphore_admin_create.rc != 0 and "'already exists' not in semaphore_admin_create.stderr"
           tags: semaphore
@@ -263,7 +267,7 @@
               After=network.target
 
               [Service]
-              ExecStart=/bin/semaphore server --config {{ semaphore_config_file }}
+              ExecStart=semaphore server --config {{ semaphore_config_file }}
               Restart=always
               User=root
               Group=root
