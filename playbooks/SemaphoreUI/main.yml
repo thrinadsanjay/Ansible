@@ -246,7 +246,7 @@
           args:
             chdir: "{{ semaphore_install_dir }}"
           register: semaphore_admin_create
-          when: semaphore_admin_check.query_result is defined and semaphore_admin_check.query_result[0][0].count == 0
+          when: semaphore_admin_check.query_result is not defined and semaphore_admin_check.query_result[0][0].count == 0
           changed_when: "'Created' not in semaphore_admin_create.stdout"
           failed_when: semaphore_admin_create.rc != 0 and "'already exists' not in semaphore_admin_create.stderr"
           tags: semaphore
