@@ -15,10 +15,10 @@
     semaphore_port: 3000
     semaphore_rpm: semaphore_2.15.0_linux_amd64.rpm
     semaphore_repo: "https://github.com/semaphoreui/semaphore/releases/download/v2.15.0/"
-    semaphore_admin: admin
-    semaphore_admin_password: Admin123
-    semaphore_admin_email: svcansible@gmail.com
-    semaphore_admin_name: Admin User
+    semaphore_admin: sanjay
+    semaphore_admin_password: Passw0rd
+    semaphore_admin_email: thrinadsanjay@gmail.com
+    semaphore_admin_name: Sanjay
   tasks:
     - name: Install required packages
       yum:
@@ -186,6 +186,11 @@
           register: semaphore_admin_check
           ignore_errors: true
 
+        - name: Debug
+          debug:
+            var: semaphore_admin_check
+          tags: semaphore
+
         - name: Create Semaphore directories
           file:
             path: "{{ item }}"
@@ -241,7 +246,7 @@
           args:
             chdir: "{{ semaphore_install_dir }}"
           register: semaphore_admin_create
-          when: semaphore_admin_check.query_result[0][0].count == '0'
+          when: semaphore_admin_check.query_result is defined and semaphore_admin_check.query_result[0][0].count == 0
           changed_when: "'Created' not in semaphore_admin_create.stdout"
           failed_when: semaphore_admin_create.rc != 0 and "'already exists' not in semaphore_admin_create.stderr"
           tags: semaphore
