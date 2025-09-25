@@ -24,6 +24,7 @@
       yum:
         name:
           - epel-release
+          - ansible
           - git
           - wget
           - mariadb-server
