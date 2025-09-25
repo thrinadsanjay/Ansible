@@ -186,11 +186,6 @@
           register: semaphore_admin_check
           ignore_errors: true
 
-        - name: Debug Semaphore Admin Check
-          debug:
-            var: semaphore_admin_check
-          when: semaphore_admin_check.query_result[0][0].count == '0'
-
         - name: Create Semaphore directories
           file:
             path: "{{ item }}"
