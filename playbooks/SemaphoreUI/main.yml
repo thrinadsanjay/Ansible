@@ -15,10 +15,10 @@
     semaphore_port: 3000
     semaphore_rpm: semaphore_2.15.0_linux_amd64.rpm
     semaphore_repo: "https://github.com/semaphoreui/semaphore/releases/download/v2.15.0/"
-    semaphore_admin: sanjay
-    semaphore_admin_password: Passw0rd
-    semaphore_admin_email: thrinadsanjay@gmail.com
-    semaphore_admin_name: Sanjay
+    semaphore_admin: admin
+    semaphore_admin_password: Admin123
+    semaphore_admin_email: svcansible@gmail.com
+    semaphore_admin_name: Admin User
   tasks:
     - name: Install required packages
       yum:
