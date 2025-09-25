@@ -252,12 +252,16 @@
           tags: semaphore
 
         - name: Ensure port is open in firewall
-          ansible.builtin.command: >
-            firewall-cmd --add-port={{ semaphore_port }}/tcp --permanent
-          register: firewall_cmd
-          changed_when: "'success' in firewall_cmd.stdout"
-          failed_when: firewall_cmd.rc != 0 and "'already' not in firewall_cmd.stderr"
-          tags: semaphore
+          ansible.posix.firewalld:
+            port: 3000/tcp
+            permanent: yes
+            state: enabled
+            immediate: yes
+
+        - name: Always reload firewalld
+          ansible.builtin.service:
+            name: firewalld
+            state: reloaded
         
         - name: Create systemd service file for Semaphore
           copy:
