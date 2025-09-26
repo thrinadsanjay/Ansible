@@ -28,7 +28,7 @@
 
 - name: Check if VM already exists
   ansible.builtin.set_fact:
-    vm_exists: "{{ VM_NAME in proxmox_vms | map(attribute='name') | list }}"
+    vm_exists: "{{ VM_NAME in proxmox_vms.vms | map(attribute='name') | list }}"
   tags: check_vm
   ignore_errors: yes
 
@@ -64,11 +64,16 @@
     state: present
   delegate_to: localhost
   register: clone_result
+  when: vm_exists == false
 
 - name: Start VM
   community.proxmox.proxmox_kvm:
-    name: "{{ VM_NAME }}"
+    api_user : "{{ PROXMOX_USER }}"
+    api_token_id : "{{ PROXMOX_TOKEN_ID }}"
+    api_token_secret : "{{ PROXMOX_TOKEN_SECRET }}"
+    api_host: "{{ PROXMOX_HOST }}"
     node: "{{ PROXMOX_NODE }}"
+    name: "{{ VM_NAME }}"
     state: started
   delegate_to: localhost
   when: clone_result is changed
