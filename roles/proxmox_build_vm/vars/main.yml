@@ -1,7 +1,7 @@
 ---
 # vars file for proxmox_vm_build
-VM_TEMP_ID: 999
-VM_ID: 101
+VM_TEMP_ID: 101
+VM_ID: 102
 VM_NAME: "lab-ipa01"
 VM_TEMPLATE: "lab-temp-ol9"
 CI_USER: "svcansadmin"
