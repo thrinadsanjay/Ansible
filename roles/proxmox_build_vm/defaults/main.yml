@@ -1,0 +1,8 @@
+---
+# defaults file for proxmox_vm_build
+PROXMOX_HOST: "192.168.0.200"
+PROXMOX_USER: "svcansadmin@pam"
+PROXMOX_PASSWORD: ""
+PROXMOX_TOKEN_ID: "svcansadmin@pam!AnsibleAccess"
+PROXMOX_TOKEN_SECRET: "c06e73d2-1075-415a-9fdc-0f2c292ee328"
+PROXMOX_NODE: "pve"

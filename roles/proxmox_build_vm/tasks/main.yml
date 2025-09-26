@@ -1,0 +1,43 @@
+---
+# tasks file for proxmox_vm_build
+- name: Clone VM from template with Cloud Init
+  communityy.proxmox.proxmox_kvm:
+    # api_user : "{{ api_user }}"
+    # api_token_id : "{{ api_token_id }}"
+    # api_token_secret : "{{ api_token_secret }}"
+    # api_host: "{{ proxmox_host }}"
+    node: "{{ PROXMOX_NODE }}"
+    clone: "{{ VM_TEMPLATE }}"
+    vmid: "{{ VM_TEMP_ID }}"
+    newid: "{{ VM_ID }}"
+    name: "{{ VM_NAME }}"
+    storage: "local-lvm"
+    format: "qcow2"
+    ciuser: "{{ CI_USER }}"
+    cipassword: "{{ CI_PASSWORD }}"
+    sshkeys: "{{ SSH_PUB_KEY }}"
+    net: 
+      net0: "virtio,bridge=vmbr0"
+    ipconfig:
+      ipconfig0: "ip={{ VM_IP }}/{{ SUFFIX }},gw={{ VM_GW }}"
+    nameservers: 
+      - "{{ VM_DNS1 }}"
+      - "{{ VM_DNS2 }}"
+      - "{{ VM_DNS3 }}"
+    memory: 2048
+    cores: 2
+    onboot: yes
+    full: yes
+    timeout: 300
+    state: present
+  delegate_to: localhost
+  register: clone_result
+
+- name: Start VM
+  community.proxmox.proxmox_kvm:
+    name: "{{ VM_NAME }}"
+    node: "{{ PROXMOX_NODE }}"
+    state: started
+  delegate_to: localhost
+  when: clone_result is changed
+  tags: start_vm

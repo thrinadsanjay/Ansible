@@ -1,0 +1,7 @@
+---
+- name: Deploy Build Server VM
+  hosts: localhost
+  gather_facts: no
+  roles:
+    - proxmox_build_vm
+  tags: build_server
