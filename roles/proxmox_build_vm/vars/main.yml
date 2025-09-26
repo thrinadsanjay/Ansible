@@ -2,12 +2,12 @@
 # vars file for proxmox_vm_build
 VM_TEMP_ID: 999
 VM_ID: 101
-VM_NAME: "lab-docker01"
+VM_NAME: "lab-ipa01"
 VM_TEMPLATE: "lab-temp-ol9"
 CI_USER: "svcansadmin"
 CI_PASSWORD: "Ansible123"
 SSH_PUB_KEY: 
-VM_IP: ""
+VM_IP: "192.168.0.22"
 SUFFIX: "24"
 VM_GW: "192.168.0.1"
 VM_DNS1: "192.168.0.22"

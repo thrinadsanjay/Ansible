@@ -1,6 +1,6 @@
 ---
 # tasks file for proxmox_vm_build
-- name: Install proxmod pythin module
+- name: Install proxmod python module
   ansible.builtin.pip:
     name: 
     - proxmoxer
@@ -17,7 +17,7 @@
     api_token_secret : "{{ PROXMOX_TOKEN_SECRET }}"
     api_host: "{{ PROXMOX_HOST }}"
     node: "{{ PROXMOX_NODE }}"
-    clone: "{{ VM_TEMPLATE }}"
+    clone: yes #"{{ VM_TEMPLATE }}"
     vmid: "{{ VM_TEMP_ID }}"
     newid: "{{ VM_ID }}"
     name: "{{ VM_NAME }}"
