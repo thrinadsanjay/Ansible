@@ -17,7 +17,7 @@
     api_token_secret : "{{ PROXMOX_TOKEN_SECRET }}"
     api_host: "{{ PROXMOX_HOST }}"
     node: "{{ PROXMOX_NODE }}"
-    clone: yes #"{{ VM_TEMPLATE }}"
+    clone: "{{ VM_TEMPLATE }}"
     #vmid: "{{ VM_TEMP_ID }}"
     #newid: "{{ VM_ID }}"
     name: "{{ VM_NAME }}"
