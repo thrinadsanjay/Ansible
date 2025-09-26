@@ -1,7 +1,7 @@
 ---
 # tasks file for proxmox_vm_build
 - name: Clone VM from template with Cloud Init
-  communityy.proxmox.proxmox_kvm:
+  community.proxmox.proxmox_kvm:
     # api_user : "{{ api_user }}"
     # api_token_id : "{{ api_token_id }}"
     # api_token_secret : "{{ api_token_secret }}"
