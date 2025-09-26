@@ -64,7 +64,7 @@
     state: present
   delegate_to: localhost
   register: clone_result
-  when: not vm_exists
+  when: vm_exists is not defined or not vm_exists
 
 - name: Start VM
   community.proxmox.proxmox_kvm:
