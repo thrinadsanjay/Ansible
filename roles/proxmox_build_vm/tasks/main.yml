@@ -23,7 +23,7 @@
 
 - name: Display Proxmox VMs
   ansible.builtin.debug:
-    var: proxmox_facts.resources
+    var: proxmox_vms
   tags: display_vms
 
 - name: Check if VM already exists
