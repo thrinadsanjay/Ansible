@@ -1,0 +1,33 @@
+---
+- name: Get OS Family
+  ansible.builtin.setup:
+    gather_subset:
+      - 'os_family'
+  delegate_to: "{{ VM_NAME }}"
+  register: os_info
+  become: yes
+  tags: configure
+
+- name: Set hostname inside the VM
+  hostname:
+    name: "{{ VM_NAME }}"
+  delegate_to: "{{ VM_NAME }}"
+  become: yes
+  tags: configure
+
+- name: Assign static IP inside the VM
+  ansible.builtin.template:
+    src: static_ip_config.j2
+    dest: /etc/sysconfig/network-scripts/ifcfg-{{ vm_interfaces}}
+  delegate_to: "{{ VM_NAME }}"
+  become: yes
+  tags: configure
+
+- name: Restart Network to apply static IP
+  ansible.builtin.service:
+    name: NetworkManager
+    state: restarted
+  delegate_to: "{{ VM_NAME }}"
+  become: yes
+  ignore_errors: yes
+  tags: configure

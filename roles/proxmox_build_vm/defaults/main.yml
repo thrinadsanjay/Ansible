@@ -1,5 +1,6 @@
 ---
 # defaults file for proxmox_vm_build
+ansible_ssh_common_args: "-o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no"
 PROXMOX_HOST: "192.168.0.200"
 PROXMOX_USER: "svcansadmin@pam"
 PROXMOX_PASSWORD: ""

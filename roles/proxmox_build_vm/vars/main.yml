@@ -14,3 +14,5 @@ VM_DNS1: "192.168.0.22"
 VM_DNS2: "192.168.0.1"
 VM_DNS3: "8.8.8.8"
 
+ANSIBLE_USER: "svcansadmin"
+ANSIBLE_SSH_PASS: "Pass@word098"

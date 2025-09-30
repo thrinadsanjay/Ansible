@@ -1,0 +1,27 @@
+{% if ansible_os_family == 'RedHat' %}
+# /etc/sysconfig/network-scripts/ifcfg-{{ vm_interfaces | default('eth0') }}
+DEVICE={{ interface | default('eth0') }}
+BOOTPROTO=none
+ONBOOT=yes
+IPADDR={{ VM_IP }}
+NETMASK={{ SUFFIX }}
+GATEWAY={{ VM_GW }}
+DNS1={{ VM_DNS1 | default('8.8.8.8') }}
+DNS2={{ VM_DNS2 | default('8.8.4.4') }}
+DNS2={{ VM_DNS3 }}
+NM_CONTROLLED=no
+USERCTL=no
+
+{% elif ansible_os_family == 'Debian' %}
+# /etc/netplan/{{ vm_interfaces | default('eth0') }}.yaml
+network:
+    version: 2
+    ethernets:
+        {{ vm_interfaces | default('eth0') }}:
+            dhcp4: no
+            addresses: [{{ VM_IP }}/{{ SUFFIX }}]
+            gateway4: {{ gateway }}
+            nameservers:
+                addresses: [{{ VM_DNS1 | default('8.8.8.8') }}, {{ VM_DNS2 | default('8.8.4.4') , VM_DNS3}}]
+
+{% endif %}

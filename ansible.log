@@ -1,0 +1,774 @@
+2025-09-26 13:53:41,658 p=10266 u=svcansadmin n=ansible | [WARNING]: Unable to parse /apps/Ansible/inventory as an inventory source
+
+2025-09-26 13:53:41,659 p=10266 u=svcansadmin n=ansible | [WARNING]: No inventory was parsed, only implicit localhost is available
+
+2025-09-26 13:53:41,662 p=10266 u=svcansadmin n=ansible | [WARNING]: provided hosts list is empty, only localhost is available. Note that the implicit localhost does not match 'all'
+
+2025-09-26 13:53:41,809 p=10266 u=svcansadmin n=ansible | ERROR! couldn't resolve module/action 'community.proxmox.proxmox_vm_info'. This often indicates a misspelling, missing collection, or incorrect module path.
+
+The error appears to be in '/apps/Ansible/roles/proxmox_build_vm/tasks/main.yml': line 13, column 3, but may
+be elsewhere in the file depending on the exact syntax problem.
+
+The offending line appears to be:
+
+
+- name: List Proxmox VMs
+  ^ here
+
+2025-09-26 13:54:29,129 p=10314 u=svcansadmin n=ansible | Starting galaxy collection install process
+2025-09-26 13:54:29,157 p=10314 u=svcansadmin n=ansible | Process install dependency map
+2025-09-26 13:54:29,157 p=10314 u=svcansadmin n=ansible | |
+2025-09-26 13:54:29,259 p=10314 u=svcansadmin n=ansible | /
+2025-09-26 13:54:29,360 p=10314 u=svcansadmin n=ansible | -
+2025-09-26 13:54:29,460 p=10314 u=svcansadmin n=ansible | \
+2025-09-26 13:54:29,561 p=10314 u=svcansadmin n=ansible | |
+2025-09-26 13:54:29,662 p=10314 u=svcansadmin n=ansible | /
+2025-09-26 13:54:29,763 p=10314 u=svcansadmin n=ansible | -
+2025-09-26 13:54:29,863 p=10314 u=svcansadmin n=ansible | \
+2025-09-26 13:54:29,964 p=10314 u=svcansadmin n=ansible | |
+2025-09-26 13:54:30,065 p=10314 u=svcansadmin n=ansible | /
+2025-09-26 13:54:30,166 p=10314 u=svcansadmin n=ansible | -
+2025-09-26 13:54:30,266 p=10314 u=svcansadmin n=ansible | \
+2025-09-26 13:54:30,367 p=10314 u=svcansadmin n=ansible | |
+2025-09-26 13:54:30,468 p=10314 u=svcansadmin n=ansible | /
+2025-09-26 13:54:30,568 p=10314 u=svcansadmin n=ansible | -
+2025-09-26 13:54:30,669 p=10314 u=svcansadmin n=ansible | \
+2025-09-26 13:54:30,769 p=10314 u=svcansadmin n=ansible | |
+2025-09-26 13:54:30,870 p=10314 u=svcansadmin n=ansible | /
+2025-09-26 13:54:30,970 p=10314 u=svcansadmin n=ansible | -
+2025-09-26 13:54:31,071 p=10314 u=svcansadmin n=ansible | \
+2025-09-26 13:54:31,171 p=10314 u=svcansadmin n=ansible | |
+2025-09-26 13:54:31,272 p=10314 u=svcansadmin n=ansible | /
+2025-09-26 13:54:31,373 p=10314 u=svcansadmin n=ansible | -
+2025-09-26 13:54:31,473 p=10314 u=svcansadmin n=ansible | \
+2025-09-26 13:54:31,574 p=10314 u=svcansadmin n=ansible | |
+2025-09-26 13:54:31,675 p=10314 u=svcansadmin n=ansible | /
+2025-09-26 13:54:31,776 p=10314 u=svcansadmin n=ansible | -
+2025-09-26 13:54:31,876 p=10314 u=svcansadmin n=ansible | \
+2025-09-26 13:54:31,977 p=10314 u=svcansadmin n=ansible | |
+2025-09-26 13:54:32,078 p=10314 u=svcansadmin n=ansible | /
+2025-09-26 13:54:32,179 p=10314 u=svcansadmin n=ansible | -
+2025-09-26 13:54:32,279 p=10314 u=svcansadmin n=ansible | \
+2025-09-26 13:54:32,380 p=10314 u=svcansadmin n=ansible | |
+2025-09-26 13:54:32,480 p=10314 u=svcansadmin n=ansible | /
+2025-09-26 13:54:32,581 p=10314 u=svcansadmin n=ansible | -
+2025-09-26 13:54:32,682 p=10314 u=svcansadmin n=ansible | \
+2025-09-26 13:54:32,782 p=10314 u=svcansadmin n=ansible | |
+2025-09-26 13:54:32,888 p=10314 u=svcansadmin n=ansible | /
+2025-09-26 13:54:32,988 p=10314 u=svcansadmin n=ansible | -
+2025-09-26 13:54:33,089 p=10314 u=svcansadmin n=ansible | \
+2025-09-26 13:54:33,189 p=10314 u=svcansadmin n=ansible | |
+2025-09-26 13:54:33,290 p=10314 u=svcansadmin n=ansible | /
+2025-09-26 13:54:33,390 p=10314 u=svcansadmin n=ansible | -
+2025-09-26 13:54:33,491 p=10314 u=svcansadmin n=ansible | \
+2025-09-26 13:54:33,592 p=10314 u=svcansadmin n=ansible | |
+2025-09-26 13:54:33,692 p=10314 u=svcansadmin n=ansible | /
+2025-09-26 13:54:33,793 p=10314 u=svcansadmin n=ansible | -
+2025-09-26 13:54:33,894 p=10314 u=svcansadmin n=ansible | \
+2025-09-26 13:54:33,994 p=10314 u=svcansadmin n=ansible | |
+2025-09-26 13:54:34,095 p=10314 u=svcansadmin n=ansible | /
+2025-09-26 13:54:34,196 p=10314 u=svcansadmin n=ansible | -
+2025-09-26 13:54:34,296 p=10314 u=svcansadmin n=ansible | \
+2025-09-26 13:54:34,397 p=10314 u=svcansadmin n=ansible | |
+2025-09-26 13:54:34,498 p=10314 u=svcansadmin n=ansible | /
+2025-09-26 13:54:34,598 p=10314 u=svcansadmin n=ansible | -
+2025-09-26 13:54:34,699 p=10314 u=svcansadmin n=ansible | \
+2025-09-26 13:54:34,800 p=10314 u=svcansadmin n=ansible | |
+2025-09-26 13:54:34,900 p=10314 u=svcansadmin n=ansible | /
+2025-09-26 13:54:35,001 p=10314 u=svcansadmin n=ansible | -
+2025-09-26 13:54:35,102 p=10314 u=svcansadmin n=ansible | \
+2025-09-26 13:54:35,202 p=10314 u=svcansadmin n=ansible | |
+2025-09-26 13:54:35,303 p=10314 u=svcansadmin n=ansible | /
+2025-09-26 13:54:35,404 p=10314 u=svcansadmin n=ansible | -
+2025-09-26 13:54:35,504 p=10314 u=svcansadmin n=ansible | \
+2025-09-26 13:54:35,605 p=10314 u=svcansadmin n=ansible | |
+2025-09-26 13:54:35,706 p=10314 u=svcansadmin n=ansible | /
+2025-09-26 13:54:35,806 p=10314 u=svcansadmin n=ansible | -
+2025-09-26 13:54:35,907 p=10314 u=svcansadmin n=ansible | \
+2025-09-26 13:54:36,008 p=10314 u=svcansadmin n=ansible | |
+2025-09-26 13:54:36,108 p=10314 u=svcansadmin n=ansible | /
+2025-09-26 13:54:36,211 p=10314 u=svcansadmin n=ansible | -
+2025-09-26 13:54:36,311 p=10314 u=svcansadmin n=ansible | \
+2025-09-26 13:54:36,412 p=10314 u=svcansadmin n=ansible | |
+2025-09-26 13:54:36,512 p=10314 u=svcansadmin n=ansible | /
+2025-09-26 13:54:36,613 p=10314 u=svcansadmin n=ansible | -
+2025-09-26 13:54:36,714 p=10314 u=svcansadmin n=ansible | \
+2025-09-26 13:54:36,814 p=10314 u=svcansadmin n=ansible | |
+2025-09-26 13:54:36,915 p=10314 u=svcansadmin n=ansible | /
+2025-09-26 13:54:37,015 p=10314 u=svcansadmin n=ansible | -
+2025-09-26 13:54:37,115 p=10314 u=svcansadmin n=ansible | \
+2025-09-26 13:54:37,216 p=10314 u=svcansadmin n=ansible | |
+2025-09-26 13:54:37,316 p=10314 u=svcansadmin n=ansible | /
+2025-09-26 13:54:37,417 p=10314 u=svcansadmin n=ansible | -
+2025-09-26 13:54:37,517 p=10314 u=svcansadmin n=ansible | \
+2025-09-26 13:54:37,618 p=10314 u=svcansadmin n=ansible | |
+2025-09-26 13:54:37,718 p=10314 u=svcansadmin n=ansible | /
+2025-09-26 13:54:37,819 p=10314 u=svcansadmin n=ansible | -
+2025-09-26 13:54:37,919 p=10314 u=svcansadmin n=ansible | \
+2025-09-26 13:54:38,020 p=10314 u=svcansadmin n=ansible | |
+2025-09-26 13:54:38,120 p=10314 u=svcansadmin n=ansible | /
+2025-09-26 13:54:38,221 p=10314 u=svcansadmin n=ansible | -
+2025-09-26 13:54:38,321 p=10314 u=svcansadmin n=ansible | \
+2025-09-26 13:54:38,422 p=10314 u=svcansadmin n=ansible | |
+2025-09-26 13:54:38,522 p=10314 u=svcansadmin n=ansible | /
+2025-09-26 13:54:38,623 p=10314 u=svcansadmin n=ansible | -
+2025-09-26 13:54:38,723 p=10314 u=svcansadmin n=ansible | \
+2025-09-26 13:54:38,824 p=10314 u=svcansadmin n=ansible | |
+2025-09-26 13:54:38,924 p=10314 u=svcansadmin n=ansible | /
+2025-09-26 13:54:39,025 p=10314 u=svcansadmin n=ansible | -
+2025-09-26 13:54:39,125 p=10314 u=svcansadmin n=ansible | \
+2025-09-26 13:54:39,226 p=10314 u=svcansadmin n=ansible | |
+2025-09-26 13:54:39,326 p=10314 u=svcansadmin n=ansible | /
+2025-09-26 13:54:39,427 p=10314 u=svcansadmin n=ansible | -
+2025-09-26 13:54:39,527 p=10314 u=svcansadmin n=ansible | \
+2025-09-26 13:54:39,628 p=10314 u=svcansadmin n=ansible | |
+2025-09-26 13:54:39,729 p=10314 u=svcansadmin n=ansible | /
+2025-09-26 13:54:39,829 p=10314 u=svcansadmin n=ansible | -
+2025-09-26 13:54:39,930 p=10314 u=svcansadmin n=ansible | \
+2025-09-26 13:54:40,033 p=10314 u=svcansadmin n=ansible | |
+2025-09-26 13:54:40,134 p=10314 u=svcansadmin n=ansible | /
+2025-09-26 13:54:40,234 p=10314 u=svcansadmin n=ansible | -
+2025-09-26 13:54:40,335 p=10314 u=svcansadmin n=ansible | \
+2025-09-26 13:54:40,435 p=10314 u=svcansadmin n=ansible | |
+2025-09-26 13:54:40,536 p=10314 u=svcansadmin n=ansible | /
+2025-09-26 13:54:40,636 p=10314 u=svcansadmin n=ansible | -
+2025-09-26 13:54:40,737 p=10314 u=svcansadmin n=ansible | \
+2025-09-26 13:54:40,838 p=10314 u=svcansadmin n=ansible | |
+2025-09-26 13:54:40,938 p=10314 u=svcansadmin n=ansible | /
+2025-09-26 13:54:41,039 p=10314 u=svcansadmin n=ansible | -
+2025-09-26 13:54:41,139 p=10314 u=svcansadmin n=ansible | \
+2025-09-26 13:54:41,240 p=10314 u=svcansadmin n=ansible | |
+2025-09-26 13:54:41,341 p=10314 u=svcansadmin n=ansible | /
+2025-09-26 13:54:41,441 p=10314 u=svcansadmin n=ansible | -
+2025-09-26 13:54:41,542 p=10314 u=svcansadmin n=ansible | \
+2025-09-26 13:54:41,642 p=10314 u=svcansadmin n=ansible | |
+2025-09-26 13:54:41,743 p=10314 u=svcansadmin n=ansible | /
+2025-09-26 13:54:41,843 p=10314 u=svcansadmin n=ansible | -
+2025-09-26 13:54:41,944 p=10314 u=svcansadmin n=ansible | \
+2025-09-26 13:54:42,044 p=10314 u=svcansadmin n=ansible | |
+2025-09-26 13:54:42,145 p=10314 u=svcansadmin n=ansible | /
+2025-09-26 13:54:42,246 p=10314 u=svcansadmin n=ansible | -
+2025-09-26 13:54:42,346 p=10314 u=svcansadmin n=ansible | \
+2025-09-26 13:54:42,447 p=10314 u=svcansadmin n=ansible | |
+2025-09-26 13:54:42,548 p=10314 u=svcansadmin n=ansible | /
+2025-09-26 13:54:42,648 p=10314 u=svcansadmin n=ansible | -
+2025-09-26 13:54:42,749 p=10314 u=svcansadmin n=ansible | \
+2025-09-26 13:54:42,849 p=10314 u=svcansadmin n=ansible | |
+2025-09-26 13:54:42,950 p=10314 u=svcansadmin n=ansible | /
+2025-09-26 13:54:43,050 p=10314 u=svcansadmin n=ansible | -
+2025-09-26 13:54:43,151 p=10314 u=svcansadmin n=ansible | \
+2025-09-26 13:54:43,252 p=10314 u=svcansadmin n=ansible | |
+2025-09-26 13:54:43,352 p=10314 u=svcansadmin n=ansible | /
+2025-09-26 13:54:43,453 p=10314 u=svcansadmin n=ansible | -
+2025-09-26 13:54:43,553 p=10314 u=svcansadmin n=ansible | \
+2025-09-26 13:54:43,654 p=10314 u=svcansadmin n=ansible | |
+2025-09-26 13:54:43,755 p=10314 u=svcansadmin n=ansible | /
+2025-09-26 13:54:43,855 p=10314 u=svcansadmin n=ansible | -
+2025-09-26 13:54:43,956 p=10314 u=svcansadmin n=ansible | \
+2025-09-26 13:54:44,056 p=10314 u=svcansadmin n=ansible | |
+2025-09-26 13:54:44,157 p=10314 u=svcansadmin n=ansible | /
+2025-09-26 13:54:44,257 p=10314 u=svcansadmin n=ansible | -
+2025-09-26 13:54:44,358 p=10314 u=svcansadmin n=ansible | \
+2025-09-26 13:54:44,459 p=10314 u=svcansadmin n=ansible | |
+2025-09-26 13:54:44,559 p=10314 u=svcansadmin n=ansible | /
+2025-09-26 13:54:44,660 p=10314 u=svcansadmin n=ansible | -
+2025-09-26 13:54:44,760 p=10314 u=svcansadmin n=ansible | \
+2025-09-26 13:54:44,861 p=10314 u=svcansadmin n=ansible | |
+2025-09-26 13:54:44,961 p=10314 u=svcansadmin n=ansible | /
+2025-09-26 13:54:45,062 p=10314 u=svcansadmin n=ansible | -
+2025-09-26 13:54:45,163 p=10314 u=svcansadmin n=ansible | \
+2025-09-26 13:54:45,263 p=10314 u=svcansadmin n=ansible | |
+2025-09-26 13:54:45,364 p=10314 u=svcansadmin n=ansible | /
+2025-09-26 13:54:45,464 p=10314 u=svcansadmin n=ansible | -
+2025-09-26 13:54:45,565 p=10314 u=svcansadmin n=ansible | \
+2025-09-26 13:54:45,666 p=10314 u=svcansadmin n=ansible | |
+2025-09-26 13:54:45,766 p=10314 u=svcansadmin n=ansible | /
+2025-09-26 13:54:45,867 p=10314 u=svcansadmin n=ansible | -
+2025-09-26 13:54:45,968 p=10314 u=svcansadmin n=ansible | \
+2025-09-26 13:54:46,068 p=10314 u=svcansadmin n=ansible | |
+2025-09-26 13:54:46,169 p=10314 u=svcansadmin n=ansible | /
+2025-09-26 13:54:46,270 p=10314 u=svcansadmin n=ansible | -
+2025-09-26 13:54:46,370 p=10314 u=svcansadmin n=ansible | \
+2025-09-26 13:54:46,471 p=10314 u=svcansadmin n=ansible | |
+2025-09-26 13:54:46,571 p=10314 u=svcansadmin n=ansible | /
+2025-09-26 13:54:46,672 p=10314 u=svcansadmin n=ansible | -
+2025-09-26 13:54:46,773 p=10314 u=svcansadmin n=ansible | \
+2025-09-26 13:54:46,873 p=10314 u=svcansadmin n=ansible | |
+2025-09-26 13:54:46,974 p=10314 u=svcansadmin n=ansible | /
+2025-09-26 13:54:47,075 p=10314 u=svcansadmin n=ansible | -
+2025-09-26 13:54:47,175 p=10314 u=svcansadmin n=ansible | \
+2025-09-26 13:54:47,276 p=10314 u=svcansadmin n=ansible | |
+2025-09-26 13:54:47,377 p=10314 u=svcansadmin n=ansible | /
+2025-09-26 13:54:47,477 p=10314 u=svcansadmin n=ansible | -
+2025-09-26 13:54:47,578 p=10314 u=svcansadmin n=ansible | \
+2025-09-26 13:54:47,678 p=10314 u=svcansadmin n=ansible | |
+2025-09-26 13:54:47,779 p=10314 u=svcansadmin n=ansible | /
+2025-09-26 13:54:47,880 p=10314 u=svcansadmin n=ansible | -
+2025-09-26 13:54:47,980 p=10314 u=svcansadmin n=ansible | \
+2025-09-26 13:54:48,080 p=10314 u=svcansadmin n=ansible | |
+2025-09-26 13:54:48,181 p=10314 u=svcansadmin n=ansible | /
+2025-09-26 13:54:48,282 p=10314 u=svcansadmin n=ansible | -
+2025-09-26 13:54:48,382 p=10314 u=svcansadmin n=ansible | \
+2025-09-26 13:54:48,483 p=10314 u=svcansadmin n=ansible | |
+2025-09-26 13:54:48,583 p=10314 u=svcansadmin n=ansible | /
+2025-09-26 13:54:48,684 p=10314 u=svcansadmin n=ansible | -
+2025-09-26 13:54:48,784 p=10314 u=svcansadmin n=ansible | \
+2025-09-26 13:54:48,885 p=10314 u=svcansadmin n=ansible | |
+2025-09-26 13:54:48,986 p=10314 u=svcansadmin n=ansible | /
+2025-09-26 13:54:49,086 p=10314 u=svcansadmin n=ansible | -
+2025-09-26 13:54:49,186 p=10314 u=svcansadmin n=ansible | \
+2025-09-26 13:54:49,287 p=10314 u=svcansadmin n=ansible | |
+2025-09-26 13:54:49,387 p=10314 u=svcansadmin n=ansible | /
+2025-09-26 13:54:49,488 p=10314 u=svcansadmin n=ansible | -
+2025-09-26 13:54:49,589 p=10314 u=svcansadmin n=ansible | \
+2025-09-26 13:54:49,689 p=10314 u=svcansadmin n=ansible | |
+2025-09-26 13:54:49,790 p=10314 u=svcansadmin n=ansible | /
+2025-09-26 13:54:49,890 p=10314 u=svcansadmin n=ansible | -
+2025-09-26 13:54:49,991 p=10314 u=svcansadmin n=ansible | \
+2025-09-26 13:54:50,091 p=10314 u=svcansadmin n=ansible | |
+2025-09-26 13:54:50,192 p=10314 u=svcansadmin n=ansible | /
+2025-09-26 13:54:50,293 p=10314 u=svcansadmin n=ansible | -
+2025-09-26 13:54:50,394 p=10314 u=svcansadmin n=ansible | \
+2025-09-26 13:54:50,494 p=10314 u=svcansadmin n=ansible | |
+2025-09-26 13:54:50,595 p=10314 u=svcansadmin n=ansible | /
+2025-09-26 13:54:50,696 p=10314 u=svcansadmin n=ansible | -
+2025-09-26 13:54:50,796 p=10314 u=svcansadmin n=ansible | \
+2025-09-26 13:54:50,897 p=10314 u=svcansadmin n=ansible | |
+2025-09-26 13:54:50,998 p=10314 u=svcansadmin n=ansible | /
+2025-09-26 13:54:51,098 p=10314 u=svcansadmin n=ansible | -
+2025-09-26 13:54:51,199 p=10314 u=svcansadmin n=ansible | \
+2025-09-26 13:54:51,299 p=10314 u=svcansadmin n=ansible | |
+2025-09-26 13:54:51,400 p=10314 u=svcansadmin n=ansible | /
+2025-09-26 13:54:51,500 p=10314 u=svcansadmin n=ansible | -
+2025-09-26 13:54:51,601 p=10314 u=svcansadmin n=ansible | \
+2025-09-26 13:54:51,701 p=10314 u=svcansadmin n=ansible | |
+2025-09-26 13:54:51,802 p=10314 u=svcansadmin n=ansible | /
+2025-09-26 13:54:51,902 p=10314 u=svcansadmin n=ansible | -
+2025-09-26 13:54:52,003 p=10314 u=svcansadmin n=ansible | \
+2025-09-26 13:54:52,104 p=10314 u=svcansadmin n=ansible | |
+2025-09-26 13:54:52,204 p=10314 u=svcansadmin n=ansible | /
+2025-09-26 13:54:52,305 p=10314 u=svcansadmin n=ansible | -
+2025-09-26 13:54:52,406 p=10314 u=svcansadmin n=ansible | \
+2025-09-26 13:54:52,506 p=10314 u=svcansadmin n=ansible | |
+2025-09-26 13:54:52,606 p=10314 u=svcansadmin n=ansible | /
+2025-09-26 13:54:52,707 p=10314 u=svcansadmin n=ansible | -
+2025-09-26 13:54:52,808 p=10314 u=svcansadmin n=ansible | \
+2025-09-26 13:54:52,908 p=10314 u=svcansadmin n=ansible | |
+2025-09-26 13:54:53,009 p=10314 u=svcansadmin n=ansible | /
+2025-09-26 13:54:53,109 p=10314 u=svcansadmin n=ansible | -
+2025-09-26 13:54:53,210 p=10314 u=svcansadmin n=ansible | \
+2025-09-26 13:54:53,311 p=10314 u=svcansadmin n=ansible | |
+2025-09-26 13:54:53,411 p=10314 u=svcansadmin n=ansible | /
+2025-09-26 13:54:53,512 p=10314 u=svcansadmin n=ansible | -
+2025-09-26 13:54:53,612 p=10314 u=svcansadmin n=ansible | \
+2025-09-26 13:54:53,713 p=10314 u=svcansadmin n=ansible | |
+2025-09-26 13:54:53,813 p=10314 u=svcansadmin n=ansible | /
+2025-09-26 13:54:53,914 p=10314 u=svcansadmin n=ansible | -
+2025-09-26 13:54:54,014 p=10314 u=svcansadmin n=ansible | \
+2025-09-26 13:54:54,115 p=10314 u=svcansadmin n=ansible | |
+2025-09-26 13:54:54,215 p=10314 u=svcansadmin n=ansible | /
+2025-09-26 13:54:54,316 p=10314 u=svcansadmin n=ansible | Starting collection install process
+2025-09-26 13:54:54,317 p=10314 u=svcansadmin n=ansible | |
+2025-09-26 13:54:54,318 p=10314 u=svcansadmin n=ansible | Downloading https://galaxy.ansible.com/api/v3/plugin/ansible/content/published/collections/artifacts/community-proxmox-1.3.0.tar.gz to /home/svcansadmin/.ansible/tmp/ansible-local-10314wn0uc_5m/tmpo3fwxr8_/community-proxmox-1.3.0-a64knrg0
+2025-09-26 13:54:54,417 p=10314 u=svcansadmin n=ansible | /
+2025-09-26 13:54:54,518 p=10314 u=svcansadmin n=ansible | -
+2025-09-26 13:54:54,618 p=10314 u=svcansadmin n=ansible | \
+2025-09-26 13:54:54,719 p=10314 u=svcansadmin n=ansible | |
+2025-09-26 13:54:54,819 p=10314 u=svcansadmin n=ansible | /
+2025-09-26 13:54:54,920 p=10314 u=svcansadmin n=ansible | -
+2025-09-26 13:54:55,021 p=10314 u=svcansadmin n=ansible | \
+2025-09-26 13:54:55,121 p=10314 u=svcansadmin n=ansible | |
+2025-09-26 13:54:55,222 p=10314 u=svcansadmin n=ansible | /
+2025-09-26 13:54:55,322 p=10314 u=svcansadmin n=ansible | -
+2025-09-26 13:54:55,423 p=10314 u=svcansadmin n=ansible | \
+2025-09-26 13:54:55,523 p=10314 u=svcansadmin n=ansible | |
+2025-09-26 13:54:55,624 p=10314 u=svcansadmin n=ansible | /
+2025-09-26 13:54:55,725 p=10314 u=svcansadmin n=ansible | -
+2025-09-26 13:54:55,826 p=10314 u=svcansadmin n=ansible | \
+2025-09-26 13:54:55,926 p=10314 u=svcansadmin n=ansible | |
+2025-09-26 13:54:56,027 p=10314 u=svcansadmin n=ansible | /
+2025-09-26 13:54:56,127 p=10314 u=svcansadmin n=ansible | -
+2025-09-26 13:54:56,228 p=10314 u=svcansadmin n=ansible | \
+2025-09-26 13:54:56,329 p=10314 u=svcansadmin n=ansible | |
+2025-09-26 13:54:56,429 p=10314 u=svcansadmin n=ansible | /
+2025-09-26 13:54:56,530 p=10314 u=svcansadmin n=ansible | -
+2025-09-26 13:54:56,631 p=10314 u=svcansadmin n=ansible | \
+2025-09-26 13:54:56,731 p=10314 u=svcansadmin n=ansible | |
+2025-09-26 13:54:56,832 p=10314 u=svcansadmin n=ansible | /
+2025-09-26 13:54:56,933 p=10314 u=svcansadmin n=ansible | -
+2025-09-26 13:54:57,033 p=10314 u=svcansadmin n=ansible | \
+2025-09-26 13:54:57,134 p=10314 u=svcansadmin n=ansible | |
+2025-09-26 13:54:57,235 p=10314 u=svcansadmin n=ansible | /
+2025-09-26 13:54:57,335 p=10314 u=svcansadmin n=ansible | -
+2025-09-26 13:54:57,436 p=10314 u=svcansadmin n=ansible | \
+2025-09-26 13:54:57,536 p=10314 u=svcansadmin n=ansible | |
+2025-09-26 13:54:57,637 p=10314 u=svcansadmin n=ansible | /
+2025-09-26 13:54:57,737 p=10314 u=svcansadmin n=ansible | -
+2025-09-26 13:54:57,838 p=10314 u=svcansadmin n=ansible | \
+2025-09-26 13:54:57,938 p=10314 u=svcansadmin n=ansible | |
+2025-09-26 13:54:58,039 p=10314 u=svcansadmin n=ansible | /
+2025-09-26 13:54:58,140 p=10314 u=svcansadmin n=ansible | -
+2025-09-26 13:54:58,240 p=10314 u=svcansadmin n=ansible | \
+2025-09-26 13:54:58,341 p=10314 u=svcansadmin n=ansible | |
+2025-09-26 13:54:58,442 p=10314 u=svcansadmin n=ansible | /
+2025-09-26 13:54:58,542 p=10314 u=svcansadmin n=ansible | -
+2025-09-26 13:54:58,643 p=10314 u=svcansadmin n=ansible | \
+2025-09-26 13:54:58,743 p=10314 u=svcansadmin n=ansible | |
+2025-09-26 13:54:58,844 p=10314 u=svcansadmin n=ansible | /
+2025-09-26 13:54:58,945 p=10314 u=svcansadmin n=ansible | -
+2025-09-26 13:54:59,045 p=10314 u=svcansadmin n=ansible | \
+2025-09-26 13:54:59,146 p=10314 u=svcansadmin n=ansible | |
+2025-09-26 13:54:59,247 p=10314 u=svcansadmin n=ansible | /
+2025-09-26 13:54:59,347 p=10314 u=svcansadmin n=ansible | -
+2025-09-26 13:54:59,448 p=10314 u=svcansadmin n=ansible | \
+2025-09-26 13:54:59,548 p=10314 u=svcansadmin n=ansible | |
+2025-09-26 13:54:59,649 p=10314 u=svcansadmin n=ansible | /
+2025-09-26 13:54:59,750 p=10314 u=svcansadmin n=ansible | -
+2025-09-26 13:54:59,850 p=10314 u=svcansadmin n=ansible | \
+2025-09-26 13:54:59,951 p=10314 u=svcansadmin n=ansible | |
+2025-09-26 13:55:00,052 p=10314 u=svcansadmin n=ansible | /
+2025-09-26 13:55:00,152 p=10314 u=svcansadmin n=ansible | -
+2025-09-26 13:55:00,253 p=10314 u=svcansadmin n=ansible | \
+2025-09-26 13:55:00,353 p=10314 u=svcansadmin n=ansible | |
+2025-09-26 13:55:00,454 p=10314 u=svcansadmin n=ansible | /
+2025-09-26 13:55:00,555 p=10314 u=svcansadmin n=ansible | -
+2025-09-26 13:55:00,655 p=10314 u=svcansadmin n=ansible | \
+2025-09-26 13:55:00,756 p=10314 u=svcansadmin n=ansible | |
+2025-09-26 13:55:00,856 p=10314 u=svcansadmin n=ansible | /
+2025-09-26 13:55:00,957 p=10314 u=svcansadmin n=ansible | -
+2025-09-26 13:55:01,057 p=10314 u=svcansadmin n=ansible | \
+2025-09-26 13:55:01,158 p=10314 u=svcansadmin n=ansible | |
+2025-09-26 13:55:01,259 p=10314 u=svcansadmin n=ansible | /
+2025-09-26 13:55:01,359 p=10314 u=svcansadmin n=ansible | -
+2025-09-26 13:55:01,459 p=10314 u=svcansadmin n=ansible | \
+2025-09-26 13:55:01,560 p=10314 u=svcansadmin n=ansible | |
+2025-09-26 13:55:01,661 p=10314 u=svcansadmin n=ansible | /
+2025-09-26 13:55:01,761 p=10314 u=svcansadmin n=ansible | -
+2025-09-26 13:55:01,862 p=10314 u=svcansadmin n=ansible | \
+2025-09-26 13:55:01,962 p=10314 u=svcansadmin n=ansible | |
+2025-09-26 13:55:02,063 p=10314 u=svcansadmin n=ansible | /
+2025-09-26 13:55:02,164 p=10314 u=svcansadmin n=ansible | -
+2025-09-26 13:55:02,264 p=10314 u=svcansadmin n=ansible | \
+2025-09-26 13:55:02,365 p=10314 u=svcansadmin n=ansible | |
+2025-09-26 13:55:02,466 p=10314 u=svcansadmin n=ansible | /
+2025-09-26 13:55:02,566 p=10314 u=svcansadmin n=ansible | -
+2025-09-26 13:55:02,667 p=10314 u=svcansadmin n=ansible | \
+2025-09-26 13:55:02,767 p=10314 u=svcansadmin n=ansible | |
+2025-09-26 13:55:02,868 p=10314 u=svcansadmin n=ansible | /
+2025-09-26 13:55:02,969 p=10314 u=svcansadmin n=ansible | -
+2025-09-26 13:55:03,069 p=10314 u=svcansadmin n=ansible | \
+2025-09-26 13:55:03,170 p=10314 u=svcansadmin n=ansible | |
+2025-09-26 13:55:03,270 p=10314 u=svcansadmin n=ansible | /
+2025-09-26 13:55:03,371 p=10314 u=svcansadmin n=ansible | -
+2025-09-26 13:55:03,472 p=10314 u=svcansadmin n=ansible | \
+2025-09-26 13:55:03,572 p=10314 u=svcansadmin n=ansible | |
+2025-09-26 13:55:03,673 p=10314 u=svcansadmin n=ansible | /
+2025-09-26 13:55:03,774 p=10314 u=svcansadmin n=ansible | -
+2025-09-26 13:55:03,874 p=10314 u=svcansadmin n=ansible | \
+2025-09-26 13:55:03,975 p=10314 u=svcansadmin n=ansible | |
+2025-09-26 13:55:04,076 p=10314 u=svcansadmin n=ansible | /
+2025-09-26 13:55:04,176 p=10314 u=svcansadmin n=ansible | -
+2025-09-26 13:55:04,277 p=10314 u=svcansadmin n=ansible | \
+2025-09-26 13:55:04,378 p=10314 u=svcansadmin n=ansible | |
+2025-09-26 13:55:04,478 p=10314 u=svcansadmin n=ansible | /
+2025-09-26 13:55:04,579 p=10314 u=svcansadmin n=ansible | -
+2025-09-26 13:55:04,680 p=10314 u=svcansadmin n=ansible | \
+2025-09-26 13:55:04,780 p=10314 u=svcansadmin n=ansible | |
+2025-09-26 13:55:04,881 p=10314 u=svcansadmin n=ansible | /
+2025-09-26 13:55:04,982 p=10314 u=svcansadmin n=ansible | -
+2025-09-26 13:55:05,082 p=10314 u=svcansadmin n=ansible | \
+2025-09-26 13:55:05,183 p=10314 u=svcansadmin n=ansible | |
+2025-09-26 13:55:05,283 p=10314 u=svcansadmin n=ansible | /
+2025-09-26 13:55:05,384 p=10314 u=svcansadmin n=ansible | -
+2025-09-26 13:55:05,484 p=10314 u=svcansadmin n=ansible | \
+2025-09-26 13:55:05,585 p=10314 u=svcansadmin n=ansible | |
+2025-09-26 13:55:05,686 p=10314 u=svcansadmin n=ansible | /
+2025-09-26 13:55:05,786 p=10314 u=svcansadmin n=ansible | -
+2025-09-26 13:55:05,887 p=10314 u=svcansadmin n=ansible | \
+2025-09-26 13:55:05,987 p=10314 u=svcansadmin n=ansible | |
+2025-09-26 13:55:06,088 p=10314 u=svcansadmin n=ansible | /
+2025-09-26 13:55:06,189 p=10314 u=svcansadmin n=ansible | -
+2025-09-26 13:55:06,290 p=10314 u=svcansadmin n=ansible | \
+2025-09-26 13:55:06,390 p=10314 u=svcansadmin n=ansible | |
+2025-09-26 13:55:06,491 p=10314 u=svcansadmin n=ansible | /
+2025-09-26 13:55:06,591 p=10314 u=svcansadmin n=ansible | -
+2025-09-26 13:55:06,692 p=10314 u=svcansadmin n=ansible | \
+2025-09-26 13:55:06,792 p=10314 u=svcansadmin n=ansible | |
+2025-09-26 13:55:06,893 p=10314 u=svcansadmin n=ansible | /
+2025-09-26 13:55:06,993 p=10314 u=svcansadmin n=ansible | -
+2025-09-26 13:55:07,094 p=10314 u=svcansadmin n=ansible | Installing 'community.proxmox:1.3.0' to '/home/svcansadmin/.ansible/collections/ansible_collections/community/proxmox'
+2025-09-26 13:55:07,094 p=10314 u=svcansadmin n=ansible | \
+2025-09-26 13:55:07,194 p=10314 u=svcansadmin n=ansible | community.proxmox:1.3.0 was installed successfully
+2025-09-26 13:55:21,366 p=10432 u=svcansadmin n=ansible | [WARNING]: Unable to parse /apps/Ansible/inventory as an inventory source
+
+2025-09-26 13:55:21,367 p=10432 u=svcansadmin n=ansible | [WARNING]: No inventory was parsed, only implicit localhost is available
+
+2025-09-26 13:55:21,370 p=10432 u=svcansadmin n=ansible | [WARNING]: provided hosts list is empty, only localhost is available. Note that the implicit localhost does not match 'all'
+
+2025-09-26 13:55:21,448 p=10432 u=svcansadmin n=ansible | [WARNING]: Collection community.proxmox does not support Ansible version 2.14.18
+
+2025-09-26 13:55:21,781 p=10432 u=svcansadmin n=ansible | PLAY [Deploy Build Server VM] ************************************************************************************************************************
+2025-09-26 13:55:21,798 p=10432 u=svcansadmin n=ansible | TASK [proxmox_build_vm : Install proxmod python module] **********************************************************************************************
+2025-09-26 13:55:21,799 p=10432 u=svcansadmin n=ansible | Friday 26 September 2025  13:55:21 +0530 (0:00:00.019)       0:00:00.019 ****** 
+2025-09-26 13:55:22,705 p=10432 u=svcansadmin n=ansible | ok: [localhost]
+2025-09-26 13:55:22,711 p=10432 u=svcansadmin n=ansible | TASK [proxmox_build_vm : List Proxmox VMs] ***********************************************************************************************************
+2025-09-26 13:55:22,712 p=10432 u=svcansadmin n=ansible | Friday 26 September 2025  13:55:22 +0530 (0:00:00.912)       0:00:00.932 ****** 
+2025-09-26 13:55:26,128 p=10432 u=svcansadmin n=ansible | An exception occurred during task execution. To see the full traceback, use -vvv. The error was: proxmoxer.core.ResourceException: 401 Unauthorized: no such user ('svcansadmin@pam!svcansadmin@pam') - {'errors': b''}
+2025-09-26 13:55:26,129 p=10432 u=svcansadmin n=ansible | fatal: [localhost]: FAILED! => changed=false 
+  msg: '401 Unauthorized: no such user (''svcansadmin@pam!svcansadmin@pam'') - {''errors'': b''''}'
+2025-09-26 13:55:26,131 p=10432 u=svcansadmin n=ansible | PLAY RECAP *******************************************************************************************************************************************
+2025-09-26 13:55:26,131 p=10432 u=svcansadmin n=ansible | localhost                  : ok=1    changed=0    unreachable=0    failed=1    skipped=0    rescued=0    ignored=0   
+2025-09-26 13:55:26,131 p=10432 u=svcansadmin n=ansible | Playbook run took 0 days, 0 hours, 0 minutes, 4 seconds
+2025-09-26 13:55:26,132 p=10432 u=svcansadmin n=ansible | Friday 26 September 2025  13:55:26 +0530 (0:00:03.420)       0:00:04.352 ****** 
+2025-09-26 13:55:26,132 p=10432 u=svcansadmin n=ansible | =============================================================================== 
+2025-09-26 13:55:26,132 p=10432 u=svcansadmin n=ansible | proxmox_build_vm : List Proxmox VMs ----------------------------------------------------------------------------------------------------------- 3.42s
+2025-09-26 13:55:26,132 p=10432 u=svcansadmin n=ansible | proxmox_build_vm : Install proxmod python module ---------------------------------------------------------------------------------------------- 0.91s
+2025-09-26 13:56:22,314 p=10536 u=svcansadmin n=ansible | [WARNING]: Unable to parse /apps/Ansible/inventory as an inventory source
+
+2025-09-26 13:56:22,314 p=10536 u=svcansadmin n=ansible | [WARNING]: No inventory was parsed, only implicit localhost is available
+
+2025-09-26 13:56:22,318 p=10536 u=svcansadmin n=ansible | [WARNING]: provided hosts list is empty, only localhost is available. Note that the implicit localhost does not match 'all'
+
+2025-09-26 13:56:22,398 p=10536 u=svcansadmin n=ansible | [WARNING]: Collection community.proxmox does not support Ansible version 2.14.18
+
+2025-09-26 13:56:22,455 p=10536 u=svcansadmin n=ansible | PLAY [Deploy Build Server VM] ************************************************************************************************************************
+2025-09-26 13:56:22,471 p=10536 u=svcansadmin n=ansible | TASK [proxmox_build_vm : Install proxmod python module] **********************************************************************************************
+2025-09-26 13:56:22,471 p=10536 u=svcansadmin n=ansible | Friday 26 September 2025  13:56:22 +0530 (0:00:00.018)       0:00:00.018 ****** 
+2025-09-26 13:56:23,316 p=10536 u=svcansadmin n=ansible | ok: [localhost]
+2025-09-26 13:56:23,322 p=10536 u=svcansadmin n=ansible | TASK [proxmox_build_vm : List Proxmox VMs] ***********************************************************************************************************
+2025-09-26 13:56:23,323 p=10536 u=svcansadmin n=ansible | Friday 26 September 2025  13:56:23 +0530 (0:00:00.851)       0:00:00.869 ****** 
+2025-09-26 13:56:23,724 p=10536 u=svcansadmin n=ansible | ok: [localhost]
+2025-09-26 13:56:23,729 p=10536 u=svcansadmin n=ansible | TASK [proxmox_build_vm : Display Proxmox VMs] ********************************************************************************************************
+2025-09-26 13:56:23,729 p=10536 u=svcansadmin n=ansible | Friday 26 September 2025  13:56:23 +0530 (0:00:00.406)       0:00:01.276 ****** 
+2025-09-26 13:56:23,756 p=10536 u=svcansadmin n=ansible | ok: [localhost] => 
+  proxmox_vms:
+    changed: false
+    failed: false
+    proxmox_vms:
+    - cpu: 0.0351165056942786
+      cpus: 2
+      disk: 0
+      diskread: 0
+      diskwrite: 0
+      id: qemu/100
+      maxcpu: 2
+      maxdisk: 53687091200
+      maxmem: 4294967296
+      mem: 2127413248
+      memhost: 2127413248
+      name: lab-ansible01
+      netin: 4070851
+      netout: 7955605
+      node: pve
+      pid: 1195
+      pressurecpufull: 0
+      pressurecpusome: 0
+      pressureiofull: 0.16
+      pressureiosome: 0.16
+      pressurememoryfull: 0
+      pressurememorysome: 0
+      status: running
+      tags: Linux;Ansible;Automation
+      template: false
+      type: qemu
+      uptime: 3045
+      vmid: 100
+    - cpu: 0.00160277354833595
+      cpus: 2
+      disk: 0
+      diskread: 0
+      diskwrite: 0
+      id: qemu/101
+      maxcpu: 2
+      maxdisk: 53687091200
+      maxmem: 2147483648
+      mem: 761030656
+      memhost: 761030656
+      name: lab-testvm01
+      netin: 229323
+      netout: 105846
+      node: pve
+      pid: 1335
+      pressurecpufull: 0
+      pressurecpusome: 0
+      pressureiofull: 0
+      pressureiosome: 0
+      pressurememoryfull: 0
+      pressurememorysome: 0
+      status: running
+      tags: Linux;Ansible;Automation
+      template: false
+      type: qemu
+      uptime: 3041
+      vmid: 101
+    - cpu: 0
+      cpus: 2
+      disk: 0
+      diskread: 0
+      diskwrite: 0
+      id: qemu/102
+      maxcpu: 2
+      maxdisk: 53687091200
+      maxmem: 2147483648
+      mem: 0
+      memhost: 0
+      name: lab-ipa01
+      netin: 0
+      netout: 0
+      node: pve
+      status: stopped
+      tags: Linux;Ansible;Automation
+      template: false
+      type: qemu
+      uptime: 0
+      vmid: 102
+    - cpu: 0
+      cpus: 2
+      disk: 0
+      diskread: 0
+      diskwrite: 0
+      id: qemu/103
+      maxcpu: 2
+      maxdisk: 53687091200
+      maxmem: 2147483648
+      mem: 0
+      memhost: 0
+      name: lab-ipa01
+      netin: 0
+      netout: 0
+      node: pve
+      status: stopped
+      tags: Linux;Ansible;Automation
+      template: false
+      type: qemu
+      uptime: 0
+      vmid: 103
+    - cpu: 0
+      cpus: 2
+      disk: 0
+      diskread: 0
+      diskwrite: 0
+      id: qemu/999
+      maxcpu: 2
+      maxdisk: 53687091200
+      maxmem: 2147483648
+      mem: 0
+      memhost: 0
+      name: lab-temp-ol9
+      netin: 0
+      netout: 0
+      node: pve
+      status: stopped
+      tags: Linux;Ansible;Automation
+      template: true
+      type: qemu
+      uptime: 0
+      vmid: 999
+2025-09-26 13:56:23,762 p=10536 u=svcansadmin n=ansible | TASK [proxmox_build_vm : Check if VM already exists] *************************************************************************************************
+2025-09-26 13:56:23,762 p=10536 u=svcansadmin n=ansible | Friday 26 September 2025  13:56:23 +0530 (0:00:00.032)       0:00:01.308 ****** 
+2025-09-26 13:56:23,796 p=10536 u=svcansadmin n=ansible | fatal: [localhost]: FAILED! => 
+  msg: |-
+    The task includes an option with an undefined variable. The error was: 'ansible.utils.unsafe_proxy.AnsibleUnsafeText object' has no attribute 'name'. 'ansible.utils.unsafe_proxy.AnsibleUnsafeText object' has no attribute 'name'
+  
+    The error appears to be in '/apps/Ansible/roles/proxmox_build_vm/tasks/main.yml': line 29, column 3, but may
+    be elsewhere in the file depending on the exact syntax problem.
+  
+    The offending line appears to be:
+  
+  
+    - name: Check if VM already exists
+      ^ here
+2025-09-26 13:56:23,797 p=10536 u=svcansadmin n=ansible | ...ignoring
+2025-09-26 13:56:23,804 p=10536 u=svcansadmin n=ansible | TASK [proxmox_build_vm : Clone VM from template with Cloud Init] *************************************************************************************
+2025-09-26 13:56:23,804 p=10536 u=svcansadmin n=ansible | Friday 26 September 2025  13:56:23 +0530 (0:00:00.042)       0:00:01.351 ****** 
+2025-09-26 13:58:23,050 p=10536 u=svcansadmin n=ansible | changed: [localhost]
+2025-09-26 13:58:23,058 p=10536 u=svcansadmin n=ansible | TASK [proxmox_build_vm : Start VM] *******************************************************************************************************************
+2025-09-26 13:58:23,058 p=10536 u=svcansadmin n=ansible | Friday 26 September 2025  13:58:23 +0530 (0:01:59.253)       0:02:00.605 ****** 
+2025-09-26 13:58:23,416 p=10536 u=svcansadmin n=ansible | fatal: [localhost]: FAILED! => changed=false 
+  msg: Multiple VMs with name lab-ipa01 found, provide vmid instead
+2025-09-26 13:58:23,419 p=10536 u=svcansadmin n=ansible | PLAY RECAP *******************************************************************************************************************************************
+2025-09-26 13:58:23,419 p=10536 u=svcansadmin n=ansible | localhost                  : ok=5    changed=1    unreachable=0    failed=1    skipped=0    rescued=0    ignored=1   
+2025-09-26 13:58:23,420 p=10536 u=svcansadmin n=ansible | Playbook run took 0 days, 0 hours, 2 minutes, 0 seconds
+2025-09-26 13:58:23,420 p=10536 u=svcansadmin n=ansible | Friday 26 September 2025  13:58:23 +0530 (0:00:00.361)       0:02:00.967 ****** 
+2025-09-26 13:58:23,421 p=10536 u=svcansadmin n=ansible | =============================================================================== 
+2025-09-26 13:58:23,421 p=10536 u=svcansadmin n=ansible | proxmox_build_vm : Clone VM from template with Cloud Init ----------------------------------------------------------------------------------- 119.25s
+2025-09-26 13:58:23,421 p=10536 u=svcansadmin n=ansible | proxmox_build_vm : Install proxmod python module ---------------------------------------------------------------------------------------------- 0.85s
+2025-09-26 13:58:23,422 p=10536 u=svcansadmin n=ansible | proxmox_build_vm : List Proxmox VMs ----------------------------------------------------------------------------------------------------------- 0.41s
+2025-09-26 13:58:23,422 p=10536 u=svcansadmin n=ansible | proxmox_build_vm : Start VM ------------------------------------------------------------------------------------------------------------------- 0.36s
+2025-09-26 13:58:23,422 p=10536 u=svcansadmin n=ansible | proxmox_build_vm : Check if VM already exists ------------------------------------------------------------------------------------------------- 0.04s
+2025-09-26 13:58:23,423 p=10536 u=svcansadmin n=ansible | proxmox_build_vm : Display Proxmox VMs -------------------------------------------------------------------------------------------------------- 0.03s
+2025-09-26 14:01:08,268 p=10684 u=svcansadmin n=ansible | [WARNING]: Unable to parse /apps/Ansible/inventory as an inventory source
+
+2025-09-26 14:01:08,268 p=10684 u=svcansadmin n=ansible | [WARNING]: No inventory was parsed, only implicit localhost is available
+
+2025-09-26 14:01:08,272 p=10684 u=svcansadmin n=ansible | [WARNING]: provided hosts list is empty, only localhost is available. Note that the implicit localhost does not match 'all'
+
+2025-09-26 14:01:08,350 p=10684 u=svcansadmin n=ansible | [WARNING]: Collection community.proxmox does not support Ansible version 2.14.18
+
+2025-09-26 14:01:08,407 p=10684 u=svcansadmin n=ansible | PLAY [Deploy Build Server VM] ************************************************************************************************************************
+2025-09-26 14:01:08,423 p=10684 u=svcansadmin n=ansible | TASK [proxmox_build_vm : Install proxmod python module] **********************************************************************************************
+2025-09-26 14:01:08,424 p=10684 u=svcansadmin n=ansible | Friday 26 September 2025  14:01:08 +0530 (0:00:00.018)       0:00:00.018 ****** 
+2025-09-26 14:01:09,260 p=10684 u=svcansadmin n=ansible | ok: [localhost]
+2025-09-26 14:01:09,268 p=10684 u=svcansadmin n=ansible | TASK [proxmox_build_vm : List Proxmox VMs] ***********************************************************************************************************
+2025-09-26 14:01:09,268 p=10684 u=svcansadmin n=ansible | Friday 26 September 2025  14:01:09 +0530 (0:00:00.844)       0:00:00.863 ****** 
+2025-09-26 14:01:09,673 p=10684 u=svcansadmin n=ansible | ok: [localhost]
+2025-09-26 14:01:09,678 p=10684 u=svcansadmin n=ansible | TASK [proxmox_build_vm : Display Proxmox VMs] ********************************************************************************************************
+2025-09-26 14:01:09,678 p=10684 u=svcansadmin n=ansible | Friday 26 September 2025  14:01:09 +0530 (0:00:00.410)       0:00:01.273 ****** 
+2025-09-26 14:01:09,703 p=10684 u=svcansadmin n=ansible | ok: [localhost] => 
+  proxmox_vms:
+    changed: false
+    failed: false
+    proxmox_vms:
+    - cpu: 0.0378303943176048
+      cpus: 2
+      disk: 0
+      diskread: 0
+      diskwrite: 0
+      id: qemu/100
+      maxcpu: 2
+      maxdisk: 53687091200
+      maxmem: 4294967296
+      mem: 2129502208
+      memhost: 2129502208
+      name: lab-ansible01
+      netin: 4695379
+      netout: 8352736
+      node: pve
+      pid: 1195
+      pressurecpufull: 0
+      pressurecpusome: 0
+      pressureiofull: 0.13
+      pressureiosome: 0.13
+      pressurememoryfull: 0
+      pressurememorysome: 0
+      status: running
+      tags: Linux;Ansible;Automation
+      template: false
+      type: qemu
+      uptime: 3331
+      vmid: 100
+    - cpu: 0.0338715445496946
+      cpus: 2
+      disk: 0
+      diskread: 0
+      diskwrite: 0
+      id: qemu/101
+      maxcpu: 2
+      maxdisk: 53687091200
+      maxmem: 2147483648
+      mem: 1250023424
+      memhost: 1250023424
+      name: lab-testvm01
+      netin: 206554056
+      netout: 5958469
+      node: pve
+      pid: 1335
+      pressurecpufull: 0
+      pressurecpusome: 0
+      pressureiofull: 0.24
+      pressureiosome: 0.24
+      pressurememoryfull: 0
+      pressurememorysome: 0
+      status: running
+      tags: Linux;Ansible;Automation
+      template: false
+      type: qemu
+      uptime: 3326
+      vmid: 101
+    - cpu: 0
+      cpus: 2
+      disk: 0
+      diskread: 0
+      diskwrite: 0
+      id: qemu/102
+      maxcpu: 2
+      maxdisk: 53687091200
+      maxmem: 2147483648
+      mem: 0
+      memhost: 0
+      name: lab-ipa01
+      netin: 0
+      netout: 0
+      node: pve
+      status: stopped
+      tags: Linux;Ansible;Automation
+      template: false
+      type: qemu
+      uptime: 0
+      vmid: 102
+    - cpu: 0
+      cpus: 2
+      disk: 0
+      diskread: 0
+      diskwrite: 0
+      id: qemu/103
+      maxcpu: 2
+      maxdisk: 53687091200
+      maxmem: 2147483648
+      mem: 0
+      memhost: 0
+      name: lab-ipa01
+      netin: 0
+      netout: 0
+      node: pve
+      status: stopped
+      tags: Linux;Ansible;Automation
+      template: false
+      type: qemu
+      uptime: 0
+      vmid: 103
+    - cpu: 0
+      cpus: 2
+      disk: 0
+      diskread: 0
+      diskwrite: 0
+      id: qemu/104
+      maxcpu: 2
+      maxdisk: 53687091200
+      maxmem: 2147483648
+      mem: 0
+      memhost: 0
+      name: lab-ipa01
+      netin: 0
+      netout: 0
+      node: pve
+      status: stopped
+      tags: Linux;Ansible;Automation
+      template: false
+      type: qemu
+      uptime: 0
+      vmid: 104
+    - cpu: 0
+      cpus: 2
+      disk: 0
+      diskread: 0
+      diskwrite: 0
+      id: qemu/999
+      maxcpu: 2
+      maxdisk: 53687091200
+      maxmem: 2147483648
+      mem: 0
+      memhost: 0
+      name: lab-temp-ol9
+      netin: 0
+      netout: 0
+      node: pve
+      status: stopped
+      tags: Linux;Ansible;Automation
+      template: true
+      type: qemu
+      uptime: 0
+      vmid: 999
+2025-09-26 14:01:09,710 p=10684 u=svcansadmin n=ansible | TASK [proxmox_build_vm : Check if VM already exists] *************************************************************************************************
+2025-09-26 14:01:09,710 p=10684 u=svcansadmin n=ansible | Friday 26 September 2025  14:01:09 +0530 (0:00:00.031)       0:00:01.305 ****** 
+2025-09-26 14:01:09,870 p=10684 u=svcansadmin n=ansible | An exception occurred during task execution. To see the full traceback, use -vvv. The error was:   line 0
+2025-09-26 14:01:09,871 p=10684 u=svcansadmin n=ansible | fatal: [localhost]: FAILED! => changed=false
+2025-09-26 14:01:09,872 p=10684 u=svcansadmin n=ansible | PLAY RECAP *******************************************************************************************************************************************
+2025-09-26 14:01:09,872 p=10684 u=svcansadmin n=ansible | localhost                  : ok=3    changed=0    unreachable=0    failed=1    skipped=0    rescued=0    ignored=0   
+2025-09-26 14:01:09,872 p=10684 u=svcansadmin n=ansible | Playbook run took 0 days, 0 hours, 0 minutes, 1 seconds
+2025-09-26 14:01:09,872 p=10684 u=svcansadmin n=ansible | Friday 26 September 2025  14:01:09 +0530 (0:00:00.162)       0:00:01.467 ****** 
+2025-09-26 14:01:09,873 p=10684 u=svcansadmin n=ansible | =============================================================================== 
+2025-09-26 14:01:09,873 p=10684 u=svcansadmin n=ansible | proxmox_build_vm : Install proxmod python module ---------------------------------------------------------------------------------------------- 0.84s
+2025-09-26 14:01:09,873 p=10684 u=svcansadmin n=ansible | proxmox_build_vm : List Proxmox VMs ----------------------------------------------------------------------------------------------------------- 0.41s
+2025-09-26 14:01:09,873 p=10684 u=svcansadmin n=ansible | proxmox_build_vm : Check if VM already exists ------------------------------------------------------------------------------------------------- 0.16s
+2025-09-26 14:01:09,873 p=10684 u=svcansadmin n=ansible | proxmox_build_vm : Display Proxmox VMs -------------------------------------------------------------------------------------------------------- 0.03s
