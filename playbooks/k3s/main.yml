@@ -7,10 +7,11 @@
     airgap_file: "k3s-airgap-images-amd64.tar.zst"
     helm_zip: "helm-v3.19.0-linux-amd64.tar.gz"
     k3s_selinux_rpm: "k3s-selinux-1.6-1.el8.noarch.rpm"
+    Airgap_url: "https://github.com/k3s-io/k3s/releases/download/v1.33.1%2Bk3s1/k3s-airgap-images-amd64.tar.zst"
   tasks:
     - name: Download Airgap file
       get_url:
-        url: "https://github.com/k3s-io/k3s/releases/download/v1.33.1%2Bk3s1/k3s-airgap-images-amd64.tar.zst"
+        url: "{{ Airgap_url }}"
         dest: "k3s/{{ airgap_file }}"
         mode: '0644'
         force: no
@@ -63,10 +64,10 @@
         src: "{{ pkg_path }}/k3s/{{ item }}"
         dest: "/usr/local/bin/"
         mode: '0777'
+        remote_src: yes
       with_items:
         - k3s
         - helm
-      remote_src: yes
     - name: Modify install.sh file permissions
       file:
         path: "{{ pkg_path }}/k3s/install.sh"
