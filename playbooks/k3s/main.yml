@@ -3,7 +3,7 @@
   hosts: localhost
   become: yes
   vars:
-    pkg_path: "/tmp/k3s"
+    pkg_path: "/tmp/"
     airgap_file: "k3s-airgap-images-amd64.tar.zst"
     helm_zip: "helm-v3.19.0-linux-amd64.tar.gz"
     k3s_selinux_rpm: "k3s-selinux-1.6-1.el8.noarch.rpm"
@@ -18,17 +18,17 @@
         name: "{{ item }}"
         state: directory
         mode: '0755'
-        recursive: yes
+        #recursive: yes
       with_items:
         - /var/lib/rancher/k3s/agent/images/
         - /etc/rancher/k3s
         - /var/lib/rancher/k3s/server/manifests
     - name: Copy the Airgap Install file
       copy:
-        src: "{{ pkg_path }}/{{ airgap_file }}"
+        src: "{{ pkg_path }}/k3s/{{ airgap_file }}"
         dest: /var/lib/rancher/k3s/agent/images/{{ airgap_file }}
         mode: '0644'
-    - name: Create cache file and skip traeffic for k3s
+    - name: Create cache file and skip default deployments for k3s
       file:
         path: "{{ item }}"
         state: touch
@@ -36,30 +36,45 @@
       with_items:
         - /var/lib/rancher/k3s/agent/images/.cache.json
         - /var/lib/rancher/k3s/server/manifests/traefik.yaml.skip
+        - /var/lib/rancher/k3s/server/manifests/local-storage.yaml.skip
+        - /var/lib/rancher/k3s/server/manifests/coredns.yaml.skip
+        - /var/lib/rancher/k3s/server/manifests/metrics-server/metrics-server-deployment.yaml.skip
     - name: Install k3s-selinux
       yum:
-        name: "{{ pkg_path}}/{{ k3s_selinux_rpm }}"
+        name: "{{ pkg_path}}/k3s/{{ k3s_selinux_rpm }}"
+        disable_gpg_check: true
     - name: Unzip helm binary
       unarchive:
-        src: "{{ pkg_path }}/{{ helm_zip }}"
-        dest: "{{ pkg_path }}"
+        src: "{{ pkg_path }}/k3s/{{ helm_zip }}"
+        dest: "{{ pkg_path }}/k3s"
         remote_src: yes
         mode: '0755'
     - name: Install k3s and helm binaries
       copy:
-        src: "{{ pkg_path }}/{{ item }}"
-        dest: "/usr/local/bin/{{ item }}"
+        src: "{{ pkg_path }}/k3s/{{ item }}"
+        dest: "/usr/local/bin/"
         mode: '0777'
       with_items:
         - k3s
         - linux-amd64/helm
     - name: Modify install.sh file permissions
-      file: 
-        path: "{{ pkg_path }}/install.sh"
+      file:
+        path: "{{ pkg_path }}/k3s/install.sh"
         mode: '0755'
-    - name: Install k3s using install.sh script # For Installing service as Non root user add "INSTALL_K3S_SYSTEMD_DIR='/home/<user_home_dir>/.config/systemd/user'" to the command
-      command: "INSTALL_K3S_SKIP_DOWNLOAD=true INSTALL_K3S_EXEC='--disable=traefik' INSTALL_K3S_EXEC='server' sh install.sh"
+    - name: Install K3s using install.sh script (offline)
+      shell: |
+        sh install.sh
       args:
-        chdir: "{{ pkg_path}}"
-      
-
+        chdir: "{{ pkg_path }}/k3s"
+      environment:
+        INSTALL_K3S_SKIP_DOWNLOAD: "true"
+        INSTALL_K3S_EXEC: "server --disable=traefik --disable=servicelb --disable=local-storage --disable=metrics-server --disable=coredns"
+        # Optional: for non-root install, uncomment and edit below
+        # INSTALL_K3S_SYSTEMD_DIR: "/home/{{ ansible_user }}/.config/systemd/user"
+    - name: Validate K3s installation
+      command: /usr/local/bin/k3s kubectl get nodes
+      register: k3s_status
+      changed_when: false
+    - name: Check K3S Status
+      debug:
+        msg: "K3s installed successfully! Nodes: {{ k3s_status.stdout }}"
