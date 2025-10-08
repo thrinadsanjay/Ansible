@@ -15,10 +15,27 @@
   become: yes
   tags: configure
 
-- name: Assign static IP inside the VM
-  ansible.builtin.template:
-    src: static_ip_config.j2
-    dest: /etc/sysconfig/network-scripts/ifcfg-{{ vm_interfaces}}
+# - name: Assign static IP inside the VM
+#   ansible.builtin.template:
+#     src: static_ip_config.j2
+#     dest: /etc/sysconfig/network-scripts/ifcfg-{{ vm_interfaces}}
+#   delegate_to: "{{ VM_NAME }}"
+#   become: yes
+#   tags: configure
+
+- name: Assign static IP inside the VM 
+  community.general.nmcli:
+    conn_name: "{{ vm_interfaces}}"
+    ifname: "{{ vm_interfaces}}"
+    type: ethernet
+    autoconnect: yes
+    ip4: "{{ VM_IP }}/{{ SUFFIX }}"
+    gw4: "{{ VM_GW }}"
+    dns4: 
+      - "{{ VM_DNS1 }}"
+      - "{{ VM_DNS2 }}"
+      - "{{ VM_DNS3 }}"
+    state: present
   delegate_to: "{{ VM_NAME }}"
   become: yes
   tags: configure

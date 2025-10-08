@@ -75,6 +75,11 @@
   delegate_to: localhost
   tags: start_vm
 
+- name: Wait for 30 seconds for VM to boot up
+  ansible.builtin.pause:
+    seconds: 30
+  when: clone_result is changed
+
 - name: Get VM IP info
   community.proxmox.proxmox_vm_info:
     api_user : "{{ PROXMOX_USER }}"
