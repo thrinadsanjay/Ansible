@@ -83,7 +83,7 @@
         # Optional: for non-root install, uncomment and edit below
         # INSTALL_K3S_SYSTEMD_DIR: "/home/{{ ansible_user }}/.config/systemd/user"
     - name: Validate K3s installation
-      command: /usr/local/bin/k3s kubectl get nodes
+      command: /usr/local/bin/k3s kubectl get nodes | grep -v NAME
       register: k3s_status
       changed_when: false
     - name: Check K3S Status
