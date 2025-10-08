@@ -35,6 +35,7 @@
         src: "{{ pkg_path }}/k3s/{{ airgap_file }}"
         dest: /var/lib/rancher/k3s/agent/images/{{ airgap_file }}
         mode: '0644'
+        remote_src: yes
     - name: Create cache file and skip default deployments for k3s
       file:
         path: "{{ item }}"
