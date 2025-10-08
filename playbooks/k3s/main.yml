@@ -1,6 +1,6 @@
 ---
 - name: Deploy k3s
-  hosts: localhost
+  hosts: k3s_nodes
   become: yes
   vars:
     pkg_path: "/tmp/"
