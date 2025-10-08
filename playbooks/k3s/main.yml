@@ -30,6 +30,7 @@
         - /var/lib/rancher/k3s/agent/images/
         - /etc/rancher/k3s
         - /var/lib/rancher/k3s/server/manifests
+        - /var/lib/rancher/k3s/server/manifests/metrics-server
     - name: Copy the Airgap Install file
       copy:
         src: "{{ pkg_path }}/k3s/{{ airgap_file }}"
