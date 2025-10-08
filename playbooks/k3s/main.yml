@@ -3,7 +3,7 @@
   hosts: k3s_nodes
   become: yes
   vars:
-    pkg_path: "/tmp/"
+    pkg_path: "/tmp"
     airgap_file: "k3s-airgap-images-amd64.tar.zst"
     helm_zip: "helm-v3.19.0-linux-amd64.tar.gz"
     k3s_selinux_rpm: "k3s-selinux-1.6-1.el8.noarch.rpm"
@@ -66,6 +66,7 @@
       with_items:
         - k3s
         - helm
+      remote_src: yes
     - name: Modify install.sh file permissions
       file:
         path: "{{ pkg_path }}/k3s/install.sh"
