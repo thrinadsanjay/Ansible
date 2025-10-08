@@ -52,12 +52,12 @@
       yum:
         name: "{{ pkg_path}}/k3s/{{ k3s_selinux_rpm }}"
         disable_gpg_check: true
-    - name: Unzip helm binary
-      unarchive:
-        src: "{{ pkg_path }}/k3s/{{ helm_zip }}"
-        dest: "{{ pkg_path }}/k3s"
-        remote_src: yes
-        mode: '0755'
+    # - name: Unzip helm binary
+    #   unarchive:
+    #     src: "{{ pkg_path }}/k3s/{{ helm_zip }}"
+    #     dest: "{{ pkg_path }}/k3s"
+    #     remote_src: yes
+    #     mode: '0755'
     - name: Install k3s and helm binaries
       copy:
         src: "{{ pkg_path }}/k3s/{{ item }}"
@@ -65,7 +65,7 @@
         mode: '0777'
       with_items:
         - k3s
-        - linux-amd64/helm
+        - helm
     - name: Modify install.sh file permissions
       file:
         path: "{{ pkg_path }}/k3s/install.sh"
