@@ -8,6 +8,12 @@
     helm_zip: "helm-v3.19.0-linux-amd64.tar.gz"
     k3s_selinux_rpm: "k3s-selinux-1.6-1.el8.noarch.rpm"
   tasks:
+    - name: Download Airgap files
+      get_url:
+        url: "https://github.com/k3s-io/k3s/releases/download/v1.33.1%2Bk3s1/k3s-airgap-images-amd64.tar.zst"
+        dest: "{{ pkg_path }}/k3s/{{ airgap_file }}"
+        mode: '0644'
+        force: no
     - name: Copy required files to destination
       copy:
         src: "k3s"
