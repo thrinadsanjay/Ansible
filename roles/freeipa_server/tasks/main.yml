@@ -6,19 +6,12 @@
   with_items:
     - ipa-server
     - ipa-server-dns
-    - bind-dyndb-ldap
-    - ipa-client
-    - ipa-admintools
-    - ntp
     - vim
     - wget
     - curl
     - unzip
     - net-tools
     - bind-utils
-    - ipa-automount
-    - ipa-server-ldap
-    - ipa-server-certinstall
     - ipa-client
     - ipa-admintools
 
