@@ -32,7 +32,7 @@
     --domain={{ freeipa_domain }}
     --ds-password={{ freeipa_directory_manager_password }}
     --admin-password={{ freeipa_admin_password }}
-    --hostname={{ freeipa_hostname }}
+    --hostname={{ ansible_hostname }}
     --setup-dns
     --no-forwarders
   args:
