@@ -1,0 +1,7 @@
+# This is defaults file for freeipa_server role
+---
+freeipa_realm: SANJAY-LAB.LOCAL
+freeipa_domain: sanjay-lab.local
+freeipa_directory_manager_password: StrongPassword123
+freeipa_admin_password: AdminPassword123
+# --- IGNORE ---

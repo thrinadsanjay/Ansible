@@ -1,0 +1,117 @@
+# Thiis is tasks for freeipa server installation
+- name: Install required packages
+  yum:
+    name: "{{ item }}"
+    state: present
+  with_items:
+    - ipa-server
+    - ipa-server-dns
+    - bind-dyndb-ldap
+    - ipa-client
+    - ipa-admintools
+    - ntp
+    - vim
+    - wget
+    - curl
+    - unzip
+    - net-tools
+    - bind-utils
+    - ipa-automount
+    - ipa-server-ldap
+    - ipa-server-certinstall
+    - ipa-client
+    - ipa-admintools
+
+- name: Set the hostname
+  ansible.builtin.hostname:
+    name: "{{ server_name }}.{{ freeipa_domain }}"
+
+- name: Set SELinux to permissive mode
+  selinux:
+    policy: targeted
+    state: permissive
+
+- name: Install FreeIPA server
+  command: >
+    ipa-server-install
+    --unattended
+    --realm={{ freeipa_realm }}
+    --domain={{ freeipa_domain }}
+    --ds-password={{ freeipa_directory_manager_password }}
+    --admin-password={{ freeipa_admin_password }}
+    --hostname={{ freeipa_hostname }}
+    --setup-dns
+    --no-forwarders
+  args:
+    creates: /etc/ipa/default.conf
+  notify: Restart ipa
+
+- name: Ensure ipa service is started and enabled
+  service:
+    name: ipa
+    state: started
+    enabled: yes
+
+- name: Allow HTTP and HTTPS services in the firewall
+  firewalld:
+    service: "{{ item }}"
+    permanent: yes
+    state: enabled
+    immediate: yes
+  with_items:
+    - http
+    - https
+  
+- name: Open required ports in the firewall
+  firewalld:
+    port: "{{ item }}/tcp"
+    permanent: yes
+    state: enabled
+    immediate: yes
+  with_items:
+    - 80
+    - 443
+    - 389
+    - 636
+    - 88
+    - 464
+    - 53
+    - 7389
+    - 123
+    - 9443
+
+- name: Add DNS records
+  command: >
+    ipa dnsrecord-add {{ freeipa_domain }} {{ item.name }}
+    --a-rec {{ item.a_record }}
+  with_items: "{{ dns_records }}"
+  when: dns_records is defined
+  register: dns_add
+  until: dns_add is succeeded
+  retries: 3
+  delay: 10
+  notify: Restart ipa
+
+- name: Add DNS SRV records
+  command: >
+    ipa dnsrecord-add {{ freeipa_domain }} _{{ item.service }}._{{ item.protocol }}.{{ freeipa_domain }}
+    --srv-rec priority={{ item.priority }},weight={{ item.weight }},port={{ item.port }},target={{ item.target }}
+  with_items: "{{ dns_srv_records }}"
+  when: dns_srv_records is defined
+  register: dns_srv_add
+  until: dns_srv_add is succeeded
+  retries: 3
+  delay: 10
+  notify: Restart ipa
+
+- name: Enable and start named service
+  service:
+    name: named
+    state: started
+    enabled: yes
+
+- name: Ensure chronyd is started and enabled
+  service:
+    name: chronyd
+    state: started
+    enabled: yes

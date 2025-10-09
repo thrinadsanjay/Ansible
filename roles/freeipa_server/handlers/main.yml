@@ -1,0 +1,6 @@
+# This is handlers file for freeipa_server role
+---
+- name: Restart ipa
+  service:
+    name: ipa
+    state: restarted
