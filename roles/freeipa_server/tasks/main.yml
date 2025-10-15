@@ -40,7 +40,7 @@
     creates: /etc/ipa/default.conf
   notify: Restart ipa
 
-  - name: Install FreeIPA server
+- name: Install FreeIPA server
   command: >
     ipa-server-install
     --unattended
