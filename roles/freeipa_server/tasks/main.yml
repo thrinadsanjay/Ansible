@@ -35,12 +35,12 @@
     --hostname="{{ server_name }}.{{ freeipa_domain }}"
     --setup-dns
     --no-forwarders
-  when: local_dns is true
+  when: local_dns == true
   args:
     creates: /etc/ipa/default.conf
   notify: Restart ipa
 
-- name: Install FreeIPA server
+- name: Install FreeIPA server without DNS Server
   command: >
     ipa-server-install
     --unattended
@@ -51,7 +51,7 @@
     --hostname="{{ server_name }}.{{ freeipa_domain }}"
     --forwarder={{ forwarder_ip1 }}
     --forwarder={{ forwarder_ip2 }}
-  when: local_dns is not true
+  when: local_dns == false
   args:
     creates: /etc/ipa/default.conf
   notify: Restart ipa
