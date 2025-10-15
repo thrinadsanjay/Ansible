@@ -15,14 +15,6 @@
   become: yes
   tags: configure
 
-# - name: Assign static IP inside the VM
-#   ansible.builtin.template:
-#     src: static_ip_config.j2
-#     dest: /etc/sysconfig/network-scripts/ifcfg-{{ vm_interfaces}}
-#   delegate_to: "{{ VM_NAME }}"
-#   become: yes
-#   tags: configure
-
 - name: Assign static IP inside the VM 
   community.general.nmcli:
     conn_name: "{{ vm_interfaces}}"
@@ -47,4 +39,44 @@
   delegate_to: "{{ VM_NAME }}"
   become: yes
   ignore_errors: yes
+  tags: configure
+
+- name: Install FreeIPA client packages on RHEL-based systems
+  ansible.builtin.yum:
+    name: ipa-client
+    state: present
+  delegate_to: "{{ VM_NAME }}"
+  become: yes
+  when: os_info.ansible_facts.os_family == "RedHat"
+  tags: configure
+  
+- name: Check if VM is already joined to FreeIPA domain
+  ansible.builtin.command: ipa-client-show
+  delegate_to: "{{ VM_NAME }}"
+  become: yes
+  register: ipa_check
+  ignore_errors: yes
+  delegate_to: "{{ VM_NAME }}"
+  when: JOIN_IPA_DOMAIN | bool
+  tags: configure
+
+- name: Set fact if VM is already joined to FreeIPA domain
+  ansible.builtin.set_fact:
+    is_joined: "{{ ipa_check.rc == 0 }}"  
+  when: JOIN_IPA_DOMAIN | bool
+  tags: configure
+
+- name: Join server to FreeIPA domain
+  ansible.builtin.command: >
+    ipa-client-install 
+    --mkhomedir 
+    --unattended 
+    --domain={{ IPA_DOMAIN }} 
+    --server={{ IPA_SERVER }} 
+    --realm={{ IPA_REALM }} 
+    --principal={{ IPA_ADMIN_USER }} 
+    --password={{ IPA_ADMIN_PASSWORD }}
+  delegate_to: "{{ VM_NAME }}"
+  become: yes
+  when: JOIN_IPA_DOMAIN | bool
   tags: configure

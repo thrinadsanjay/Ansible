@@ -47,8 +47,9 @@
       - "{{ VM_DNS1 }}"
       - "{{ VM_DNS2 }}"
       - "{{ VM_DNS3 }}"
-    memory: 2048
-    cores: 2
+    memory: "{{ RAM }}"
+    cores: "{{ CORE }}"
+    sockets: "{{ CPU }}"
     onboot: yes
     full: yes
     timeout: 300

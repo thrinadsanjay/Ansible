@@ -1,6 +1,6 @@
 # This is variables file for freeipa_server role
 ---
-freeipa_realm: SANJAY-LAB.LOCAL
-freeipa_domain: sanjay-lab.local
+freeipa_realm: "{{ IPA_REALM }}"
+freeipa_domain: "{{ IPA_DOMAIN }}"
 freeipa_directory_manager_password: StrongPassword123
 freeipa_admin_password: AdminPassword123
