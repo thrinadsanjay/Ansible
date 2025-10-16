@@ -73,13 +73,14 @@
     node: "{{ PROXMOX_NODE }}"
     name: "{{ VM_NAME }}"
     state: started
+  register: vm_state
   delegate_to: localhost
   tags: start_vm
 
-- name: Wait for 30 seconds for VM to boot up
+- name: Wait for 60 seconds for VM to boot up
   ansible.builtin.pause:
-    seconds: 30
-  when: clone_result is changed
+    seconds: 60
+  when: vm_state is changed
 
 - name: Get VM IP info
   community.proxmox.proxmox_vm_info:
