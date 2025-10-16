@@ -24,6 +24,11 @@
     policy: targeted
     state: permissive
 
+- name: Uninstall FreeIPA Server
+  command: >
+    ipa-server-install --uninstall --unattended
+  tags: reinstall
+
 - name: Install FreeIPA server with DNS
   command: >
     ipa-server-install
