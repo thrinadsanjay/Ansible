@@ -40,7 +40,7 @@
     --hostname="{{ server_name }}.{{ freeipa_domain }}"
     --setup-dns
     --no-forwarders
-  when: local_dns == true
+  when: local_dns == "true"
   args:
     creates: /etc/ipa/default.conf
   notify: Restart ipa
@@ -56,7 +56,7 @@
     --hostname="{{ server_name }}.{{ freeipa_domain }}"
     --forwarder={{ forwarder_ip1 }}
     --forwarder={{ forwarder_ip2 }}
-  when: local_dns == false
+  when: local_dns == "false"
   args:
     creates: /etc/ipa/default.conf
   notify: Restart ipa
