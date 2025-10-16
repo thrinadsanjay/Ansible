@@ -62,7 +62,6 @@
     --admin-password={{ freeipa_admin_password }}
     --hostname={{ server_name }}.{{ freeipa_domain }}
     --mkhomedir
-    --no-dns
   when: not local_dns | bool
   args:
     creates: /etc/ipa/default.conf
