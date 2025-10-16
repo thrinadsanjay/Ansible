@@ -19,46 +19,51 @@
   ansible.builtin.hostname:
     name: "{{ server_name }}.{{ freeipa_domain }}"
 
-- name: Set SELinux to permissive mode
-  selinux:
-    policy: targeted
-    state: permissive
+- name: Add entry to /etc/hosts
+  ansible.builtin.lineinfile:
+    file: /etc/hosts
+    line: "{{ server_ip }} {{ server_name }}.{{ freeipa_domain }} {{ server_name }}"
+    state: present
+  
+# - name: Set SELinux to permissive mode
+#   selinux:
+#     policy: targeted
+#     state: permissive
 
-- name: Uninstall FreeIPA Server
+- name: Uninstall FreeIPA Server if reinstall is true
   command: >
     ipa-server-install --uninstall --unattended
+  when: reinstall | bool
   tags: reinstall
 
 - name: Install FreeIPA server with DNS
-  command: >
+  ansible.builtin.command: >
     ipa-server-install
     --unattended
     --realm={{ freeipa_realm }}
     --domain={{ freeipa_domain }}
     --ds-password={{ freeipa_directory_manager_password }}
     --admin-password={{ freeipa_admin_password }}
-    --hostname="{{ server_name }}.{{ freeipa_domain }}"
+    --hostname={{ server_name }}.{{ freeipa_domain }}
     --setup-dns
     --no-forwarders
-  when: local_dns == "true"
+  when: local_dns | bool
   args:
     creates: /etc/ipa/default.conf
   notify: Restart ipa
 
-- name: Install FreeIPA server without DNS Server
-  command: >
+- name: Install FreeIPA server without DNS
+  ansible.builtin.command: >
     ipa-server-install
     --unattended
     --realm={{ freeipa_realm }}
     --domain={{ freeipa_domain }}
     --ds-password={{ freeipa_directory_manager_password }}
     --admin-password={{ freeipa_admin_password }}
-    --hostname="{{ server_name }}.{{ freeipa_domain }}"
+    --hostname={{ server_name }}.{{ freeipa_domain }}
     --mkhomedir
-  # --forwarder={{ forwarder_ip1 }}
-  # --forwarder={{ forwarder_ip2 }}
-  # --no-dns
-  when: local_dns == "false"
+    --no-dns
+  when: not local_dns | bool
   args:
     creates: /etc/ipa/default.conf
   notify: Restart ipa
