@@ -1,0 +1,8 @@
+---
+- name: Deploy FreeIPA Server
+  hosts: freeipa_servers
+  become: yes
+  vars:
+    - server_name: "lab-ipa01"
+  roles:
+    - freeipa_server

@@ -1,0 +1,8 @@
+---
+- name: Deploy FreeIPA Server
+  hosts: docker_servers
+  become: yes
+  vars:
+    - server_name: "lab-ipa01"
+  roles:
+    - docker_server
