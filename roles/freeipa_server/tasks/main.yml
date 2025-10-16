@@ -22,7 +22,7 @@
 - name: Add entry to /etc/hosts
   ansible.builtin.lineinfile:
     file: /etc/hosts
-    line: "{{ server_ip }} {{ server_name }}.{{ freeipa_domain }} {{ server_name }}"
+    line: "{{ ansible_default_ipv4.address }} {{ server_name }}.{{ freeipa_domain }} {{ server_name }}"
     state: present
   
 # - name: Set SELinux to permissive mode
