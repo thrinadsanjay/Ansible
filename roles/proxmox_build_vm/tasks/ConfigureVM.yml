@@ -47,7 +47,7 @@
     state: present
   delegate_to: "{{ VM_NAME }}"
   become: yes
-  when: os_info.ansible_facts.os_family == "RedHat"
+  #when: os_info.ansible_facts.os_family == "RedHat"
   tags: configure
   
 - name: Check if VM is already joined to FreeIPA domain
