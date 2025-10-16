@@ -21,7 +21,7 @@
 
 - name: Add entry to /etc/hosts
   ansible.builtin.lineinfile:
-    file: /etc/hosts
+    path: /etc/hosts
     line: "{{ ansible_default_ipv4.address }} {{ server_name }}.{{ freeipa_domain }} {{ server_name }}"
     state: present
   
