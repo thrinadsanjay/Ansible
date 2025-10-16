@@ -4,5 +4,5 @@ freeipa_realm: "{{ IPA_REALM }}"
 freeipa_domain: "{{ IPA_DOMAIN }}"
 freeipa_directory_manager_password: StrongPassword123
 freeipa_admin_password: AdminPassword123
-forwarder_ip1: "austin.ns.cloudflare.com"
-forwarder_ip2: "elly.ns.cloudflare.com"
+forwarder_ip1: "173.245.59.70" #"austin.ns.cloudflare.com"
+forwarder_ip2: "108.162.194.246" #"elly.ns.cloudflare.com"
