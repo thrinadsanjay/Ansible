@@ -54,6 +54,7 @@
     --ds-password={{ freeipa_directory_manager_password }}
     --admin-password={{ freeipa_admin_password }}
     --hostname="{{ server_name }}.{{ freeipa_domain }}"
+    --mkhomedir
   # --forwarder={{ forwarder_ip1 }}
   # --forwarder={{ forwarder_ip2 }}
   # --no-dns
