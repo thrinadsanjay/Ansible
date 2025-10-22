@@ -1,0 +1,111 @@
+version: '3.8'
+
+services:
+  freeipa:
+    image: freeipa/freeipa-server:rocky-8-4.9.13
+    container_name: freeipa-server
+    hostname: ipa.testlab.local
+    domainname: testlab.local
+    restart: unless-stopped
+    privileged: true 
+    environment:
+      IPA_SERVER_IP: 10.184.42.146  # Replace with your server IP
+      IPA_SERVER_HOSTNAME: ipa.testlab.local
+      IPA_REALM: TESTLAB.LOCAL
+      IPA_PASSWORD: Admin123
+      IPA_SERVER_INSTALL_OPTIONS: >
+          --unattended
+          --setup-dns
+          --no-forwarders
+          --auto-reverse
+    ports:
+      - "8888:80"
+      - "8443:443"
+      - "8389:389"
+      - "8636:636"
+      - "8088:88"
+      - "8464:464"
+      - "7389:7389"
+    volumes:
+      - freeipa-data:/data
+    cap_add:
+      - SYS_ADMIN
+      - NET_ADMIN
+    tty: true
+    stdin_open: true
+    tmpfs:
+      - /run
+      - /tmp
+
+#   freeipa:
+#     image: freeipa/freeipa-server:rocky-8-4.9.13
+#     container_name: freeipa
+#     hostname: ipa.testlab.local
+#     extra_hosts:
+#       - "ipa.testlab.local:127.0.0.1"
+#     ports:
+#       - "8888:80"
+#       - "8443:443"
+#       - "8389:389"
+#       - "8636:636"
+#       - "8088:88"
+#       - "8464:464"
+#       - "7389:7389"
+#     volumes:
+#       - freeipa-data:/data
+#     command: ipa-server-install
+#             --unattended
+#             --realm=TESTLAB.LOCAL
+#             --domain=testlab.local
+#             --ds-password=Passw0rd123
+#             --admin-password=Admin123
+#             --hostname=ipa.testlab.local
+#             --no-ntp
+#       #- /sys/fs/cgroup:/sys/fs/cgroup:ro
+#     privileged: true
+#     restart: unless-stopped
+#     # networks:
+#     #   - ipa_net
+
+  keycloak:
+    image: quay.io/keycloak/keycloak:latest
+    container_name: keycloak
+    environment:
+      - KEYCLOAK_ADMIN=admin
+      - KEYCLOAK_ADMIN_PASSWORD=admin
+      # optional: configure host if needed
+      - KC_HOSTNAME=keycloak.local
+      - KC_HOSTNAME_STRICT=false
+    command: ["start-dev"]
+    ports:
+      - "8080:8080"
+    depends_on:
+      - freeipa
+    restart: unless-stopped
+    # networks:
+    #   - ipa_net
+
+  grafana:
+    image: grafana/grafana:latest
+    container_name: grafana
+    environment:
+      - GF_SECURITY_ADMIN_USER=grafana
+      - GF_SECURITY_ADMIN_PASSWORD=grafana
+      - GF_AUTH_ANONYMOUS_ENABLED=false
+    ports:
+      - "3000:3000"
+    volumes:
+      - grafana-data:/var/lib/grafana
+    depends_on:
+      - keycloak
+    restart: unless-stopped
+    # networks:
+    #   - ipa_net
+
+volumes:
+  freeipa-data:
+  grafana-data:
+
+# networks:
+#   ipa_net:
+#     driver: bridge

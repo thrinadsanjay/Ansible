@@ -1,0 +1,43 @@
+version: '3.8'
+services:
+  freeipa:
+    image: freeipa/freeipa-server:rocky-8-4.9.13
+    container_name: freeipa-server
+    hostname: ipa.testlab.local
+    domainname: testlab.local
+    volume:
+      - freeipa-data:/data
+    environment:
+      - PASSWORD=Password123
+    ports:
+      - "8088:80"
+
+  keycloak:
+    image: quay.io/keycloak/keycloak:26.0
+    command: start-dev
+    environment:
+      KEYCLOAK_ADMIN: admin
+      KEYCLOAK_ADMIN_PASSWORD: admin
+      KC_DB: dev-mem
+    ports:
+      - "8080:8080"
+
+  grafana:
+    image: grafana/grafana:11.0.0
+    depends_on:
+      - keycloak
+    ports:
+      - "3000:3000"
+    environment:
+      - GF_SECURITY_ADMIN_USER=admin
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+      # Enable generic OIDC authentication
+      - GF_AUTH_GENERIC_OAUTH_ENABLED=true
+      - GF_AUTH_GENERIC_OAUTH_NAME=Keycloak
+      - GF_AUTH_GENERIC_OAUTH_CLIENT_ID=grafana
+      - GF_AUTH_GENERIC_OAUTH_CLIENT_SECRET=${GRAFANA_CLIENT_SECRET}
+      - GF_AUTH_GENERIC_OAUTH_AUTH_URL=http://keycloak:8080/realms/monitoring/protocol/openid-connect/auth
+      - GF_AUTH_GENERIC_OAUTH_TOKEN_URL=http://keycloak:8080/realms/monitoring/protocol/openid-connect/token
+      - GF_AUTH_GENERIC_OAUTH_API_URL=http://keycloak:8080/realms/monitoring/protocol/openid-connect/userinfo
+      - GF_AUTH_SIGNOUT_REDIRECT_URL=http://keycloak:8080/realms/monitoring/protocol/openid-connect/logout
+      - GF_AUTH_GENERIC_OAUTH_ALLOW_SIGN_UP=true

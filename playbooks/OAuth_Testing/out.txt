@@ -1,0 +1,39 @@
+2025-10-17 12:20:18 Directory Manager password required
+2025-10-17 12:20:18 The ipa-server-install command failed. See /var/log/ipaserver-install.log for more information
+2025-10-17 12:20:18 ==============================
+2025-10-17 12:20:18 This program will set up the IPA Server.
+2025-10-17 12:20:18 Version 4.9.13
+2025-10-17 12:20:18 
+2025-10-17 12:20:18 This includes:
+2025-10-17 12:20:18   * Configure a stand-alone CA (dogtag) for certificate management
+2025-10-17 12:20:18   * Configure the NTP client (chronyd)
+2025-10-17 12:20:18   * Create and configure an instance of Directory Server
+2025-10-17 12:20:18   * Create and configure a Kerberos Key Distribution Center (KDC)
+2025-10-17 12:20:18   * Configure Apache (httpd)
+2025-10-17 12:20:18   * Configure SID generation
+2025-10-17 12:20:18   * Configure the KDC to enable PKINIT
+2025-10-17 12:20:18 
+2025-10-17 12:20:18 To accept the default shown in brackets, press the Enter key.
+2025-10-17 12:20:18 
+2025-10-17 12:20:18 Do you want to configure integrated DNS (BIND)? [no]: 
+2025-10-17 12:20:18 Enter the fully qualified domain name of the computer
+2025-10-17 12:20:18 on which you're setting up server software. Using the form
+2025-10-17 12:20:18 <hostname>.<domainname>
+2025-10-17 12:20:18 Example: master.example.com
+2025-10-17 12:20:18 
+2025-10-17 12:20:18 
+2025-10-17 12:20:18 Server host name [ipa.testlab.local]: 
+2025-10-17 12:20:18 The domain name has been determined based on the host name.
+2025-10-17 12:20:18 
+2025-10-17 12:20:18 Please confirm the domain name [testlab.local]: 
+2025-10-17 12:20:18 The kerberos protocol requires a Realm name to be defined.
+2025-10-17 12:20:18 This is typically the domain name converted to uppercase.
+2025-10-17 12:20:18 
+2025-10-17 12:20:18 Please provide a realm name [TESTLAB.LOCAL]: Certain directory server operations require an administrative user.
+2025-10-17 12:20:18 This user is referred to as the Directory Manager and has full access
+2025-10-17 12:20:18 to the Directory for system management tasks and will be added to the
+2025-10-17 12:20:18 instance of directory server created for IPA.
+2025-10-17 12:20:18 The password must be at least 8 characters long.
+2025-10-17 12:20:18 
+2025-10-17 12:20:18 Directory Manager password: 
+2025-10-17 12:20:18 FreeIPA server configuration failed.
