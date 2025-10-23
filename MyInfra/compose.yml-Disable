@@ -1,0 +1,58 @@
+version: "3.8"
+
+services:
+  semaphore:
+    #image: public.ecr.aws/semaphore/pro/server:v2.16.18
+    image: semaphoreui/semaphore:latest
+    ports:
+      - "3000:3000"
+    depends_on:
+      mysql:
+        condition: service_healthy
+    volumes:
+      - ./Semaphore/data:/var/lib/semaphore
+      - ./Semaphore/config:/etc/semaphore
+      - ./Semaphore/tmp:/tmp/semaphore
+      #- ./Ansible:/ansible
+    environment:
+      SEMAPHORE_DB_DIALECT: mysql
+      SEMAPHORE_DB_HOST: mysql
+      SEMAPHORE_DB_NAME: semaphore
+      SEMAPHORE_DB_USER: semaphore
+      SEMAPHORE_DB_PASS: semaphorePassw0rd
+      SEMAPHORE_ADMIN: admin
+      SEMAPHORE_ADMIN_PASSWORD: Admin123
+      SEMAPHORE_ADMIN_NAME: Admin
+      SEMAPHORE_ADMIN_EMAIL: admin@localhost
+      SEMAPHORE_KEY_ENCRYPTION: "0JSrYBKS6z0+Rg3js39tjr+1+f5pG0I/Abgy5/jaEDA="
+      SEMAPHORE_USE_REMOTE_RUNNER: True
+      SEMAPHORE_RUNNER_REGISTRATION_TOKEN: "0ISrYBjr+1z0+sJiPads39tjr+1+f5pG0I/Abgy5/jaEDA="
+
+
+  mysql:
+    image: mysql:5.7
+    environment:
+      MYSQL_ROOT_PASSWORD: mysqlPassw0rd
+      MYSQL_DATABASE: semaphore
+      MYSQL_USER: semaphore
+      MYSQL_PASSWORD: semaphorePassw0rd
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql-data:/var/lib/mysql
+    healthcheck:
+        test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+        interval: 5s
+        retries: 5
+        timeout: 5s
+
+  # ansible:
+  #   image: ansible/ansible:ubuntu1404
+  #   volumes:
+  #     - ./ansible:/ansible
+  #   environment:
+  #     ANSIBLE_LOG_PATH: /ansible/logs/ansible.log
+
+volumes:
+  mysql-data:
+  semaphore-data:

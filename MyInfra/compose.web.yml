@@ -1,0 +1,14 @@
+name: myinfra
+services:
+  web:
+      image: httpd:latest
+      ports:
+          - 8080:80
+      volumes:
+          - ./www:/usr/local/apache2/htdocs/
+      networks:
+          - infra_network
+
+networks:
+    infra_network: {driver: "bridge"}
+

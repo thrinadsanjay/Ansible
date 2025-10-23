@@ -1,0 +1,38 @@
+name: myinfra
+services:
+  mysql:
+    image: mysql:8
+    environment:
+        MYSQL_USER: semaphore
+        MYSQL_ROOT_PASSWORD: mysqlPassw0rd
+        MYSQL_PASSWORD: semaphorePassw0rd
+        MYSQL_DATABASE: semaphore
+    volumes:
+        - semaphore_mysql:/var/lib/mysql
+    networks:
+        - infra_network
+    healthcheck:
+        test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+        interval: 5s
+        retries: 5
+        timeout: 5s
+
+  postgres:
+    image: postgres:15
+    container_name: postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: keycloak
+      POSTGRES_USER: keycloak
+      POSTGRES_PASSWORD: strong_db_password
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    networks:
+      - infra_network
+
+volumes:
+    semaphore_mysql:
+    postgres-data:
+
+networks:
+    infra_network: {driver: "bridge"}

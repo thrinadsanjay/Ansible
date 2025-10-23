@@ -1,0 +1,67 @@
+name: myinfra
+services:
+  semaphore:
+    ports:
+        - 4000:3000
+    depends_on:
+        - mysql
+    image: semaphoreui/semaphore:latest
+    #image: public.ecr.aws/semaphore/pro/server:v2.16.18
+    environment:
+        SEMAPHORE_DB_DIALECT: mysql
+        SEMAPHORE_DB_HOST: mysql
+        SEMAPHORE_DB_NAME: semaphore
+        SEMAPHORE_DB_USER: semaphore
+        SEMAPHORE_DB_PASS: semaphorePassw0rd
+        SEMAPHORE_ADMIN: admin
+        SEMAPHORE_ADMIN_PASSWORD: admin
+        SEMAPHORE_ADMIN_NAME: Admin
+        SEMAPHORE_ADMIN_EMAIL: admin@localhost
+        SEMAPHORE_KEY_ENCRYPTION: "0JSrYBKS6z0+Rg3js39tjr+1+f5pG0I/Abgy5/jaEDA="
+        # SEMAPHORE_USE_REMOTE_RUNNER: "True"
+        # SEMAPHORE_RUNNER_REGISTRATION_TOKEN: "b9l6vl9a44zLUJRm1fx+g8+186mlYIjOhhbTkcHTq3M="
+        # SEMAPHORE_EVENT_LOG_FORMAT: "json"
+        # SEMAPHORE_EVENT_LOG_ENABLED: "True"
+        # SEMAPHORE_TASK_LOG_FORMAT: "json"
+        # SEMAPHORE_TASK_LOG_ENABLED: "True"
+        ANSIBLE_HOST_KEY_CHECKING: "False"
+        ANSIBLE_CONFIG: /ansible/config/ansible.cfg
+    volumes:
+        - ./Semaphore/data:/var/lib/semaphore
+        - ./Semaphore/config:/etc/semaphore
+        - ./Semaphore/tmp:/tmp/semaphore
+        - ./Ansible/logging:/ansible/config
+    networks:
+        - infra_network
+  grafana:
+    image: grafana/grafana:latest
+    container_name: grafana
+    environment:
+      - GF_SECURITY_ADMIN_USER=admin
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+      - GF_AUTH_DISABLE_LOGIN_FORM=false
+      - GF_AUTH_GENERIC_OAUTH_ENABLED=true
+      - GF_AUTH_GENERIC_OAUTH_NAME=Keycloak
+      - GF_AUTH_GENERIC_OAUTH_CLIENT_ID=grafana #${CLIENT_ID}
+      - GF_AUTH_GENERIC_OAUTH_CLIENT_SECRET=grafana-client-secret
+      - GF_AUTH_GENERIC_OAUTH_AUTH_URL=http://localhost:8080/auth/realms/sanjay-lab/protocol/openid-connect/auth
+      - GF_AUTH_GENERIC_OAUTH_TOKEN_URL=http://keycloak:8080/auth/realms/sanjay-lab/protocol/openid-connect/token
+      - GF_AUTH_GENERIC_OAUTH_API_URL=http://keycloak:8080/auth/realms/sanjay-lab/protocol/openid-connect/userinfo
+      - GF_AUTH_SIGNOUT_REDIRECT_URL=http://keycloak:8080/auth/realms/sanjay-lab/protocol/openid-connect/logout
+      - GF_SERVER_ROOT_URL=http://localhost:3001
+      - GF_AUTH_GENERIC_OAUTH_ROLE_ATTRIBUTE_PATH=contains(groups[*], 'admin') && 'Admin' || 'Viewer'
+    ports:
+      - "3000:3000"
+    volumes:
+      - grafana-data:/var/lib/grafana
+    depends_on:
+      - keycloak
+    restart: unless-stopped
+    networks:
+      - infra_network
+
+volumes:
+    grafana-data:
+    
+networks:
+    infra_network: {driver: "bridge"}

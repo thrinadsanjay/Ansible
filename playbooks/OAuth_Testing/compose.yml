@@ -1,97 +1,116 @@
 version: '3.8'
 
-services:
-  freeipa:
-    image: freeipa/freeipa-server:rocky-8-4.9.13
-    container_name: freeipa-server
-    hostname: ipa.testlab.local
-    domainname: testlab.local
-    restart: unless-stopped
-    privileged: true 
-    environment:
-      IPA_SERVER_IP: 10.184.42.146  # Replace with your server IP
-      IPA_SERVER_HOSTNAME: ipa.testlab.local
-      IPA_REALM: TESTLAB.LOCAL
-      IPA_PASSWORD: Admin123
-      IPA_SERVER_INSTALL_OPTIONS: >
-          --unattended
-          --setup-dns
-          --no-forwarders
-          --auto-reverse
-    ports:
-      - "8888:80"
-      - "8443:443"
-      - "8389:389"
-      - "8636:636"
-      - "8088:88"
-      - "8464:464"
-      - "7389:7389"
-    volumes:
-      - freeipa-data:/data
-    cap_add:
-      - SYS_ADMIN
-      - NET_ADMIN
-    tty: true
-    stdin_open: true
-    tmpfs:
-      - /run
-      - /tmp
+x-common: &common
+  REALM_NAME: sanjay-lab
+  CLIENT_ID: grafana
+  KEYCLOAK_INTERNAL_URL: http://keycloak:8080/realms/sanjay-lab
+  # Store secrets in a separate .env file for security
+  # CLIENT_SECRET: grafana-client-secret
 
-#   freeipa:
-#     image: freeipa/freeipa-server:rocky-8-4.9.13
-#     container_name: freeipa
-#     hostname: ipa.testlab.local
-#     extra_hosts:
-#       - "ipa.testlab.local:127.0.0.1"
-#     ports:
-#       - "8888:80"
-#       - "8443:443"
-#       - "8389:389"
-#       - "8636:636"
-#       - "8088:88"
-#       - "8464:464"
-#       - "7389:7389"
-#     volumes:
-#       - freeipa-data:/data
-#     command: ipa-server-install
-#             --unattended
-#             --realm=TESTLAB.LOCAL
-#             --domain=testlab.local
-#             --ds-password=Passw0rd123
-#             --admin-password=Admin123
-#             --hostname=ipa.testlab.local
-#             --no-ntp
-#       #- /sys/fs/cgroup:/sys/fs/cgroup:ro
-#     privileged: true
-#     restart: unless-stopped
-#     # networks:
-#     #   - ipa_net
+services:
+
+  postgres:
+    image: postgres:15
+    container_name: keycloak-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: keycloak
+      POSTGRES_USER: keycloak
+      POSTGRES_PASSWORD: strong_db_password
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    networks:
+      - infra-net
+
+  mysql:
+    image: mysql:8
+    container_name: semaphore-mysql
+    environment:
+        MYSQL_USER: semaphore
+        MYSQL_ROOT_PASSWORD: mysqlPassw0rd
+        MYSQL_PASSWORD: semaphorePassw0rd
+        MYSQL_DATABASE: semaphore
+    volumes:
+        - semaphore_mysql:/var/lib/mysql
+    networks:
+        - infra-net
+    healthcheck:
+        test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+        interval: 5s
+        retries: 5
+        timeout: 5s
 
   keycloak:
-    image: quay.io/keycloak/keycloak:latest
+    image: quay.io/keycloak/keycloak:26.0.0
     container_name: keycloak
+    command: start-dev --import-realm
     environment:
-      - KEYCLOAK_ADMIN=admin
-      - KEYCLOAK_ADMIN_PASSWORD=admin
-      # optional: configure host if needed
-      - KC_HOSTNAME=keycloak.local
-      - KC_HOSTNAME_STRICT=false
-    command: ["start-dev"]
+      KC_DB: postgres
+      KC_DB_URL_HOST: postgres
+      KC_DB_URL_DATABASE: keycloak
+      KC_DB_USERNAME: keycloak
+      KC_DB_PASSWORD: strong_db_password
+      KC_HEALTH_ENABLED: "true"
+      KC_METRICS_ENABLED: "true"
+      KC_HTTP_RELATIVE_PATH: /auth
+      KC_BOOTSTRAP_ADMIN_USERNAME: admin
+      KC_BOOTSTRAP_ADMIN_PASSWORD: admin
     ports:
       - "8080:8080"
     depends_on:
-      - freeipa
+      - postgres
     restart: unless-stopped
-    # networks:
-    #   - ipa_net
+    networks:
+      - infra-net
+    volumes:
+      - ./keycloak/import:/opt/keycloak/data/import
+      - keycloak-data:/opt/keycloak/data
+
+  semaphore:
+    container_name: semaphore
+    ports:
+        - "3001:3000"
+    depends_on:
+        - mysql
+    image: semaphoreui/semaphore:latest
+    environment:
+        SEMAPHORE_DB_DIALECT: mysql
+        SEMAPHORE_DB_HOST: mysql
+        SEMAPHORE_DB_NAME: semaphore
+        SEMAPHORE_DB_USER: semaphore
+        SEMAPHORE_DB_PASS: semaphorePassw0rd
+        SEMAPHORE_ADMIN: admin
+        SEMAPHORE_ADMIN_PASSWORD: Admin123
+        SEMAPHORE_ADMIN_NAME: Admin
+        SEMAPHORE_ADMIN_EMAIL: admin@localhost
+        SEMAPHORE_KEY_ENCRYPTION: "0JSrYBKS6z0+Rg3js39tjr+1+f5pG0I/Abgy5/jaEDA="
+        ANSIBLE_HOST_KEY_CHECKING: "False"
+        ANSIBLE_CONFIG: /ansible/config/ansible.cfg
+    volumes:
+        - ./Semaphore/data:/var/lib/semaphore
+        - ./Semaphore/config:/etc/semaphore
+        - ./Semaphore/tmp:/tmp/semaphore
+        - ./Ansible/logging:/ansible/config
+    networks:
+        - infra-net
 
   grafana:
     image: grafana/grafana:latest
     container_name: grafana
     environment:
-      - GF_SECURITY_ADMIN_USER=grafana
-      - GF_SECURITY_ADMIN_PASSWORD=grafana
-      - GF_AUTH_ANONYMOUS_ENABLED=false
+      - GF_SECURITY_ADMIN_USER=admin
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+      - GF_AUTH_DISABLE_LOGIN_FORM=false
+      - GF_AUTH_GENERIC_OAUTH_ENABLED=true
+      - GF_AUTH_GENERIC_OAUTH_NAME=Keycloak
+      - GF_AUTH_GENERIC_OAUTH_CLIENT_ID=grafana #${CLIENT_ID}
+      - GF_AUTH_GENERIC_OAUTH_CLIENT_SECRET=grafana-client-secret
+      - GF_AUTH_GENERIC_OAUTH_AUTH_URL=http://localhost:8080/auth/realms/sanjay-lab/protocol/openid-connect/auth
+      - GF_AUTH_GENERIC_OAUTH_TOKEN_URL=http://keycloak:8080/auth/realms/sanjay-lab/protocol/openid-connect/token
+      - GF_AUTH_GENERIC_OAUTH_API_URL=http://keycloak:8080/auth/realms/sanjay-lab/protocol/openid-connect/userinfo
+      #- GF_AUTH_SIGNOUT_REDIRECT_URL=http://keycloak:8080/auth/realms/sanjay-lab/protocol/openid-connect/logout
+      - GF_SERVER_ROOT_URL=http://localhost:3001
+      - GF_AUTH_GENERIC_OAUTH_ROLE_ATTRIBUTE_PATH=contains(groups[*], 'admin') && 'Admin' || 'Viewer'
     ports:
       - "3000:3000"
     volumes:
@@ -99,13 +118,15 @@ services:
     depends_on:
       - keycloak
     restart: unless-stopped
-    # networks:
-    #   - ipa_net
+    networks:
+      - infra-net
 
 volumes:
-  freeipa-data:
+  postgres-data:
+  keycloak-data:
   grafana-data:
+  semaphore_mysql:
 
-# networks:
-#   ipa_net:
-#     driver: bridge
+networks:
+  infra-net:
+    driver: bridge

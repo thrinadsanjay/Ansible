@@ -1,0 +1,70 @@
+services:
+    mysql:
+        image: mysql:8
+        environment:
+            MYSQL_USER: semaphore
+            MYSQL_ROOT_PASSWORD: mysqlPassw0rd
+            MYSQL_PASSWORD: semaphorePassw0rd
+            MYSQL_DATABASE: semaphore
+        volumes:
+            - semaphore_mysql:/var/lib/mysql
+        networks:
+            - semaphore_network
+        healthcheck:
+            test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+            interval: 5s
+            retries: 5
+            timeout: 5s
+    semaphore:
+        ports:
+            - 3000:3000
+        depends_on:
+            - mysql
+        image: semaphoreui/semaphore:latest
+        #image: public.ecr.aws/semaphore/pro/server:v2.16.18
+        environment:
+            SEMAPHORE_DB_DIALECT: mysql
+            SEMAPHORE_DB_HOST: mysql
+            SEMAPHORE_DB_NAME: semaphore
+            SEMAPHORE_DB_USER: semaphore
+            SEMAPHORE_DB_PASS: semaphorePassw0rd
+            SEMAPHORE_ADMIN: admin
+            SEMAPHORE_ADMIN_PASSWORD: Admin123
+            SEMAPHORE_ADMIN_NAME: Admin
+            SEMAPHORE_ADMIN_EMAIL: admin@localhost
+            SEMAPHORE_KEY_ENCRYPTION: "0JSrYBKS6z0+Rg3js39tjr+1+f5pG0I/Abgy5/jaEDA="
+            # SEMAPHORE_USE_REMOTE_RUNNER: "True"
+            # SEMAPHORE_RUNNER_REGISTRATION_TOKEN: "b9l6vl9a44zLUJRm1fx+g8+186mlYIjOhhbTkcHTq3M="
+            # SEMAPHORE_EVENT_LOG_FORMAT: "json"
+            # SEMAPHORE_EVENT_LOG_ENABLED: "True"
+            # SEMAPHORE_TASK_LOG_FORMAT: "json"
+            # SEMAPHORE_TASK_LOG_ENABLED: "True"
+            ANSIBLE_HOST_KEY_CHECKING: "False"
+            ANSIBLE_CONFIG: /ansible/config/ansible.cfg
+        volumes:
+            - ./Semaphore/data:/var/lib/semaphore
+            - ./Semaphore/config:/etc/semaphore
+            - ./Semaphore/tmp:/tmp/semaphore
+            - ./Ansible/logging:/ansible/config
+        networks:
+            - semaphore_network
+    web:
+        image: httpd:latest
+        ports:
+            - 8080:80
+        volumes:
+            - ./www:/usr/local/apache2/htdocs/
+        networks:
+            - semaphore_network
+    # ansible:
+    #     image: ansible/ansible:ubuntu1404
+    #     volumes:
+    #         - ./ansible:/ansible
+    #     environment:
+    #         ANSIBLE_LOG_PATH: /ansible/logs/ansible.log
+    #     networks:
+    #     - semaphore_network
+volumes:
+    semaphore_mysql:
+networks:
+    semaphore_network: {driver: "bridge"}

@@ -1,0 +1,23 @@
+{
+  "id": "sanjay-lab",
+  "realm": "sanjay-lab",
+  "enabled": true,
+  "clients": [
+    {
+      "clientId": "grafana",
+      "name": "Grafana",
+      "enabled": true,
+      "clientAuthenticatorType": "client-secret",
+      "secret": "grafana-client-secret",
+      "redirectUris": [
+        "http://localhost:3000/*"
+      ],
+      "webOrigins": [
+        "http://localhost:3000"
+      ],
+      "publicClient": false,
+      "serviceAccountsEnabled": false,
+      "standardFlowEnabled": true
+    }
+  ]
+}
