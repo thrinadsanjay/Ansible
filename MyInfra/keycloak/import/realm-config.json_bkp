@@ -1,0 +1,38 @@
+{
+  "id": "sanjay-lab",
+  "realm": "sanjay-lab",
+  "enabled": true,
+  "clients": [
+    {
+      "clientId": "grafana",
+      "protocol": "openid-connect",
+      "name": "Grafana",
+      "scope": "openid profile email",
+      "enabled": true,
+      "clientAuthenticatorType": "client-secret",
+      "publicClient": false,
+      "secret": "grafanaclientsecret",
+      "redirectUris": [
+        "http://grafana:3000/*"
+      ],
+      "webOrigins": ["*"],
+      "serviceAccountsEnabled": false,
+      "standardFlowEnabled": true
+    },
+    {
+      "clientId": "semaphore",
+      "protocol": "openid-connect",
+      "name": "Semaphore",
+      "scope": "openid profile email",
+      "enabled": true,
+      "clientAuthenticatorType": "client-secret",
+      "publicClient": false,
+      "secret": "semaphoreclientsecret",
+      "redirectUris": ["http://semaphore:4000/*"],
+      "webOrigins": ["*"],
+      "standardFlowEnabled": true,
+      "directAccessGrantsEnabled": false,
+      "rootUrl": "http://semaphore:4000"
+    }
+  ]
+}

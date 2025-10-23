@@ -1,0 +1,243 @@
+---
+# Ansible playbook: create Keycloak + Grafana Docker containers,
+# configure Keycloak to use FreeIPA as LDAP user federation and
+# register Grafana as an OpenID Connect client.
+#
+# Requirements:
+# - control node and target host must have Docker and python dependencies for community.docker
+# - ansible collections: community.docker, community.general
+#
+# Usage:
+# - Customize variables below (freeipa settings, admin passwords, realm, client redirect URIs)
+# - Run against the Docker host (hosts: dockerhosts)
+
+- name: Deploy Keycloak + Grafana and configure FreeIPA + client
+  hosts: dockerhosts
+  gather_facts: false
+  vars:
+    # Images
+    keycloak_image: "quay.io/keycloak/keycloak:21.1.1"
+    grafana_image: "grafana/grafana:10.0.0"
+
+    # Networking
+    docker_network: "kc_graf_net"
+
+    # Keycloak runtime / admin
+    keycloak_container_name: "keycloak"
+    keycloak_http_port: 8080
+    keycloak_admin_user: "admin"
+    keycloak_admin_password: "AdminPassw0rd!"
+    keycloak_realm: "testlab"
+
+    # FreeIPA / LDAP settings (must be adapted to your FreeIPA)
+    freeipa_host: "freeipa.example.com"
+    freeipa_port: 389
+    freeipa_uri: "ldap://{{ freeipa_host }}:{{ freeipa_port }}"
+    freeipa_bind_dn: "uid=admin,cn=users,cn=accounts,dc=example,dc=com"
+    freeipa_bind_password: "FreeIPABindPassword"
+    freeipa_users_dn: "cn=users,cn=accounts,dc=example,dc=com"
+    freeipa_search_scope: "SUBTREE"
+
+    # Grafana client settings
+    grafana_client_id: "grafana-client"
+    grafana_client_name: "Grafana"
+    grafana_redirect_uris:
+      - "http://grafana:3000/login/generic_oauth"
+      - "http://localhost:3000/login/generic_oauth"
+    grafana_container_name: "grafana"
+    grafana_http_port: 3000
+    grafana_admin_user: "admin"
+    grafana_admin_password: "GrafanaAdminPassw0rd!"
+
+    # Wait/retry
+    keycloak_startup_retries: 30
+    keycloak_startup_delay: 4
+
+  tasks:
+    - name: Ensure Docker network exists
+      community.docker.docker_network:
+        name: "{{ docker_network }}"
+        state: present
+
+    - name: Start Keycloak container (Quarkus start-dev)
+      community.docker.docker_container:
+        name: "{{ keycloak_container_name }}"
+        image: "{{ keycloak_image }}"
+        state: started
+        restart_policy: unless-stopped
+        env:
+          KEYCLOAK_ADMIN: "{{ keycloak_admin_user }}"
+          KEYCLOAK_ADMIN_PASSWORD: "{{ keycloak_admin_password }}"
+        command: ["start-dev"]
+        networks:
+          - name: "{{ docker_network }}"
+        published_ports:
+          - "{{ keycloak_http_port }}:8080"
+
+    - name: Wait for Keycloak token endpoint to become available
+      community.general.uri:
+        url: "http://127.0.0.1:{{ keycloak_http_port }}/realms/master/protocol/openid-connect/token"
+        method: POST
+        body_format: form-urlencoded
+        status_code: 200
+        body:
+          grant_type: "password"
+          client_id: "admin-cli"
+          username: "{{ keycloak_admin_user }}"
+          password: "{{ keycloak_admin_password }}"
+      register: kc_token_resp
+      retries: "{{ keycloak_startup_retries }}"
+      delay: "{{ keycloak_startup_delay }}"
+      until: kc_token_resp.status == 200
+
+    - name: Set admin access token fact
+      set_fact:
+        keycloak_admin_token: "{{ (kc_token_resp.json.access_token) | default('') }}"
+
+    - name: Create realm (if not exists) in Keycloak
+      community.general.uri:
+        url: "http://127.0.0.1:{{ keycloak_http_port }}/admin/realms"
+        method: POST
+        headers:
+          Authorization: "Bearer {{ keycloak_admin_token }}"
+          Content-Type: "application/json"
+        body_format: json
+        body:
+          id: "{{ keycloak_realm }}"
+          realm: "{{ keycloak_realm }}"
+          enabled: true
+      register: create_realm_resp
+      failed_when: create_realm_resp.status not in [201, 409]  # 409 = already exists
+
+    - name: Add FreeIPA (LDAP) user federation provider to Keycloak
+      community.general.uri:
+        url: "http://127.0.0.1:{{ keycloak_http_port }}/admin/realms/{{ keycloak_realm }}/components"
+        method: POST
+        headers:
+          Authorization: "Bearer {{ keycloak_admin_token }}"
+          Content-Type: "application/json"
+        body_format: json
+        body:
+          name: "freeipa-ldap"
+          providerId: "ldap"
+          providerType: "org.keycloak.storage.UserStorageProvider"
+          config:
+            # minimal recommended config - adapt to your FreeIPA ldap layout
+            priority:
+              - "0"
+            vendor:
+              - "freeipa"           # human readable; Keycloak uses ldap provider and vendor used in UI
+            usernameLDAPAttribute:
+              - "uid"
+            rdnLDAPAttribute:
+              - "uid"
+            uuidLDAPAttribute:
+              - "entryUUID"
+            userObjectClasses:
+              - "person"
+            connectionUrl:
+              - "{{ freeipa_uri }}"
+            usersDn:
+              - "{{ freeipa_users_dn }}"
+            bindDn:
+              - "{{ freeipa_bind_dn }}"
+            bindCredential:
+              - "{{ freeipa_bind_password }}"
+            searchScope:
+              - "{{ freeipa_search_scope }}"
+            editMode:
+              - "READ_ONLY"
+      register: ldap_provider_resp
+      failed_when: ldap_provider_resp.status not in [201, 409]
+
+    - name: Create Grafana client in Keycloak
+      community.general.uri:
+        url: "http://127.0.0.1:{{ keycloak_http_port }}/admin/realms/{{ keycloak_realm }}/clients"
+        method: POST
+        headers:
+          Authorization: "Bearer {{ keycloak_admin_token }}"
+          Content-Type: "application/json"
+        body_format: json
+        body:
+          clientId: "{{ grafana_client_id }}"
+          name: "{{ grafana_client_name }}"
+          enabled: true
+          publicClient: false
+          protocol: "openid-connect"
+          standardFlowEnabled: true
+          implicitFlowEnabled: false
+          directAccessGrantsEnabled: false
+          serviceAccountsEnabled: false
+          redirectUris: "{{ grafana_redirect_uris }}"
+      register: create_client_resp
+      failed_when: create_client_resp.status not in [201, 409]
+
+    - name: Lookup Grafana client internal id
+      community.general.uri:
+        url: "http://127.0.0.1:{{ keycloak_http_port }}/admin/realms/{{ keycloak_realm }}/clients?clientId={{ grafana_client_id }}"
+        method: GET
+        headers:
+          Authorization: "Bearer {{ keycloak_admin_token }}"
+      register: grafana_client_lookup
+
+    - name: Set grafana client internal id fact
+      set_fact:
+        grafana_client_internal_id: "{{ (grafana_client_lookup.json[0].id) | default('') }}"
+
+    - name: Create client secret for Grafana (if not exists)
+      community.general.uri:
+        url: "http://127.0.0.1:{{ keycloak_http_port }}/admin/realms/{{ keycloak_realm }}/clients/{{ grafana_client_internal_id }}/client-secret"
+        method: POST
+        headers:
+          Authorization: "Bearer {{ keycloak_admin_token }}"
+          Content-Type: "application/json"
+      register: grafana_client_secret_resp
+
+    - name: Set grafana client secret fact
+      set_fact:
+        grafana_client_secret: "{{ grafana_client_secret_resp.json.value | default('') }}"
+
+    - name: Start Grafana container (configured to use Keycloak OIDC)
+      community.docker.docker_container:
+        name: "{{ grafana_container_name }}"
+        image: "{{ grafana_image }}"
+        state: started
+        restart_policy: unless-stopped
+        networks:
+          - name: "{{ docker_network }}"
+        published_ports:
+          - "{{ grafana_http_port }}:3000"
+        env:
+          GF_SECURITY_ADMIN_USER: "{{ grafana_admin_user }}"
+          GF_SECURITY_ADMIN_PASSWORD: "{{ grafana_admin_password }}"
+
+          # Enable Generic OAuth (Keycloak OIDC) in Grafana
+          GF_AUTH_GENERIC_OAUTH_ENABLED: "true"
+          GF_AUTH_GENERIC_OAUTH_NAME: "Keycloak"
+          GF_AUTH_GENERIC_OAUTH_ALLOW_SIGN_UP: "true"
+          GF_AUTH_GENERIC_OAUTH_CLIENT_ID: "{{ grafana_client_id }}"
+          GF_AUTH_GENERIC_OAUTH_CLIENT_SECRET: "{{ grafana_client_secret }}"
+          GF_AUTH_GENERIC_OAUTH_SCOPES: "openid profile email"
+          GF_AUTH_GENERIC_OAUTH_AUTH_URL: "http://{{ keycloak_container_name }}:8080/realms/{{ keycloak_realm }}/protocol/openid-connect/auth"
+          GF_AUTH_GENERIC_OAUTH_TOKEN_URL: "http://{{ keycloak_container_name }}:8080/realms/{{ keycloak_realm }}/protocol/openid-connect/token"
+          GF_AUTH_GENERIC_OAUTH_API_URL: "http://{{ keycloak_container_name }}:8080/realms/{{ keycloak_realm }}/protocol/openid-connect/userinfo"
+          GF_SERVER_ROOT_URL: "http://localhost:{{ grafana_http_port }}"
+      register: grafana_start
+
+    - name: Wait for Grafana to become available
+      community.general.uri:
+        url: "http://127.0.0.1:{{ grafana_http_port }}"
+        status_code: 200
+      register: grafana_health
+      retries: 12
+      delay: 5
+      until: grafana_health.status == 200
+
+    - name: Summary output
+      debug:
+        msg:
+          - "Keycloak admin token short: {{ keycloak_admin_token[:20] }}..."
+          - "Grafana client id: {{ grafana_client_id }}"
+          - "Grafana client secret (short): {{ grafana_client_secret[:12] if grafana_client_secret else 'N/A' }}"
+          - "Access Grafana at: http://<docker-host>:{{ grafana_http_port }}"
+          - "Keycloak admin console at: http://<docker-host>:{{ keycloak_http_port }} (admin/{{ keycloak_admin_user }})"
