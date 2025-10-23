@@ -28,11 +28,11 @@
       "clientAuthenticatorType": "client-secret",
       "publicClient": false,
       "secret": "semaphoreclientsecret",
-      "redirectUris": ["http://semaphore:3000/*"],
+      "redirectUris": ["http://semaphore:4000/*"],
       "webOrigins": ["*"],
       "standardFlowEnabled": true,
       "directAccessGrantsEnabled": false,
-      "rootUrl": "http://semaphore:3000"
+      "rootUrl": "http://semaphore:4000"
     }
   ]
 }
