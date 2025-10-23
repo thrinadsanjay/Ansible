@@ -2,6 +2,7 @@ name: myinfra
 services:
   mysql:
     image: mysql:8
+    container_name: mysql
     environment:
         MYSQL_USER: semaphore
         MYSQL_ROOT_PASSWORD: mysqlPassw0rd
