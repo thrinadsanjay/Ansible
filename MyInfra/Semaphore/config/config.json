@@ -13,10 +13,10 @@
   	"oidc_providers": {
       "keycloak": {
 		"display_name": "Sign in with keycloak",
-		"provider_url": "https://localhost:8080/realms/sanjay-lab",
+		"provider_url": "http://keycloak:8080/realms/sanjay-lab",
 		"client_id": "semaphore",
 		"client_secret": "semaphoreclientsecret",
-		"redirect_url": "https://localhost:4000/api/auth/oidc/keycloak/redirect"
+		"redirect_url": "http://localhost:4000/api/auth/oidc/keycloak/redirect"
     	}
 	}
 }

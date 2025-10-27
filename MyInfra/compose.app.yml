@@ -21,9 +21,18 @@ services:
         SEMAPHORE_OIDC_CLIENT_ID: semaphore
         SEMAPHORE_OIDC_CLIENT_SECRET: semaphoreclientsecret
         SEMAPHORE_OIDC_DISCOVERY_URL: http://keycloak:8080/realms/semaphore/.well-known/openid-configuration
-        SEMAPHORE_OIDC_REDIRECT_URL: http://localhost:3000/
+        SEMAPHORE_OIDC_REDIRECT_URL: http://localhost:4000/api/auth/oidc/keycloak/redirect
         ANSIBLE_HOST_KEY_CHECKING: "False"
         ANSIBLE_CONFIG: /ansible/config/ansible.cfg
+        SEMAPHORE_LOG_LEVEL: debug
+        SEMAPHORE_LICENSE_KEY: "67365401-5f5b-4456-8b37-4275f6ac59b4"
+        # SEMAPHORE_EVENT_LOG_FORMAT: "raw"
+        SEMAPHORE_EVENT_LOG_ENABLED: "True"
+        SEMAPHORE_EVENT_LOGGER: "/tmp/semaphore/events.log"
+        # SEMAPHORE_TASK_LOG_FORMAT: json
+        SEMAPHORE_TASK_LOG_ENABLED: True
+        SEMAPHORE_TASK_LOGGER: "/tmp/semaphore/tasks.log"
+  
     ports:
         - 4000:3000
     volumes:
