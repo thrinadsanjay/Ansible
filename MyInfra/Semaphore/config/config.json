@@ -7,7 +7,16 @@
  	},
  	"dialect": "mysql",
  	"tmp_path": "/tmp/semaphore",
- 	"cookie_hash": "7SHJrJOwGLpUb9Ehqq3Q9lI0IoKdWA+shcSBQwhBFBs=",
- 	"cookie_encryption": "ALFEwAxSGabzhdkMB0eUIxCTzuBvuC8BufO0HXbQb3I=",
- 	"access_key_encryption": "SmM5ri8rEBq33ICynxnEe6QDHSOBzXUhxbNgg4amfOY="
- }
+ 	"cookie_hash": "2dGWJsZZ+RF7cot+DntlmKwpBPad94RvECtt5QgMnrw=",
+ 	"cookie_encryption": "2IvwyICfU+btXPDex8mNMpD8FB87f48hxZ/enp2wYWY=",
+ 	"access_key_encryption": "USMzeGekt2adeGZo8mhMrUp9gnrCwjmAE8kwJrFL8RU=",
+  	"oidc_providers": {
+      "keycloak": {
+		"display_name": "Sign in with keycloak",
+		"provider_url": "https://localhost:8080/realms/sanjay-lab",
+		"client_id": "semaphore",
+		"client_secret": "semaphoreclientsecret",
+		"redirect_url": "https://localhost:4000/api/auth/oidc/keycloak/redirect"
+    	}
+	}
+}

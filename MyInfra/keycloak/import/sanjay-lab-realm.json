@@ -1,0 +1,156 @@
+{
+  "realm": "sanjay-lab",
+  "enabled": true,
+  "smtpServer" : {
+    "password" : "odwvdnifbywazldk",
+    "replyToDisplayName" : "Admin",
+    "starttls" : "true",
+    "auth" : "true",
+    "port" : "587",
+    "host" : "smtp.gmail.com",
+    "replyTo" : "svcansible@gmail.com",
+    "from" : "admin@sanjay-lab.online",
+    "fromDisplayName" : "Admin",
+    "envelopeFrom" : "",
+    "ssl" : "false",
+    "user" : "svcansible@gmail.com"
+  },
+  "clients": [
+    {
+      "clientId": "grafana",
+      "name": "Grafana",
+      "description": "Grafana SSO",
+      "enabled": true,
+      "clientAuthenticatorType": "client-secret",
+      "secret": "grafanaclientsecret",
+      "redirectUris": ["http://localhost:3000/*"],
+      "webOrigins": ["*"],
+      "protocol": "openid-connect",
+      "standardFlowEnabled": true,
+      "implicitFlowEnabled": false,
+      "directAccessGrantsEnabled": false,
+      "serviceAccountsEnabled": false,
+      "publicClient": false,
+      "frontchannelLogout": true,
+      "fullScopeAllowed": true,
+      "defaultClientScopes": ["web-origins", "acr", "profile", "roles", "basic", "email"],
+      "optionalClientScopes": ["address", "phone", "organization", "offline_access", "microprofile-jwt"]
+    },
+    {
+      "clientId": "semaphore",
+      "name": "SemaphoreUI",
+      "description": "Semaphore SSO",
+      "enabled": true,
+      "clientAuthenticatorType": "client-secret",
+      "secret": "semaphoreclientsecret",
+      "redirectUris": ["http://localhost:4000/*"],
+      "webOrigins": ["*"],
+      "protocol": "openid-connect",
+      "standardFlowEnabled": true,
+      "implicitFlowEnabled": false,
+      "directAccessGrantsEnabled": false,
+      "serviceAccountsEnabled": false,
+      "publicClient": false,
+      "frontchannelLogout": true,
+      "fullScopeAllowed": true,
+      "defaultClientScopes": ["web-origins", "acr", "profile", "roles", "basic", "email"],
+      "optionalClientScopes": ["address", "phone", "organization", "offline_access", "microprofile-jwt"]
+    }
+  ],
+  "groups": [
+    {
+      "name": "grafana_admin",
+      "path": "/grafana_admin",
+      "realmRoles": [],
+      "clientRoles": {
+        "grafana": ["rbac_grafana_admin"]
+      }
+    },
+    {
+    "name": "grafana_viewer",
+    "path": "/grafana_viewer",
+    "realmRoles": [],
+    "clientRoles": {
+        "grafana": ["rbac_grafana_viewer"]
+      }
+    },
+    {
+    "name": "grafana_editor",
+    "path": "/grafana_editor",
+    "realmRoles": [],
+    "clientRoles": {
+        "grafana": ["rbac_grafana_editor"]
+      }
+    },
+    {
+    "name": "semaphore_admin",
+    "path": "/semaphore_admin",
+    "realmRoles": [],
+    "clientRoles": {
+        "semaphore": ["rbac_semaphore_admin"]
+      }
+    },
+    {
+    "name": "semaphore_viewer",
+    "path": "/semaphore_viewer",
+    "realmRoles": [],
+    "clientRoles": {
+        "semaphore": ["rbac_semaphore_viewer"]
+      }
+    },
+    {
+    "name": "semaphore_operator",
+    "path": "/semaphore_operator",
+    "realmRoles": [],
+    "clientRoles": {
+        "semaphore": ["rbac_semaphore_operator"]
+      }
+    }
+  ],
+  "roles": {
+    "client": {
+      "grafana": [
+        {
+          "name": "rbac_grafana_admin",
+          "clientRole": true
+        },
+        {
+          "name": "rbac_grafana_viewer",
+          "clientRole": true
+        },
+        {
+          "name": "rbac_grafana_editor",
+          "clientRole": true
+        },
+        {
+          "name": "rbac_semaphore_admin",
+          "clientRole": true
+        },
+        {
+          "name": "rbac_semaphore_viewer",
+          "clientRole": true
+        },
+        {
+          "name": "rbac_semaphore_operator",
+          "clientRole": true
+        }
+      ]
+    }
+  },
+  "users": [
+    {
+      "username": "sanjay",
+      "firstName": "Sanjay",
+      "lastName": "Ch",
+      "email": "thrinadsanjay@gmail.com",
+      "enabled": true,
+      "credentials": [
+        {
+          "type": "password",
+          "value": "Pass@word098"
+        }
+      ],
+      "groups": ["/grafana_admin", "/semaphore_admin"]
+    }
+  ]
+}
