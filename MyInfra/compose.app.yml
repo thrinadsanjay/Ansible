@@ -1,7 +1,9 @@
 name: myinfra
 services:
   semaphore:
-    image: semaphoreui/semaphore:latest
+    #image: semaphoreui/semaphore:latest
+    #image: semaphoreui/semaphore:v2.16.18
+    image: public.ecr.aws/semaphore/pro/server:v2.16.18
     container_name: semaphore
     environment:
         SEMAPHORE_DB_DIALECT: mysql
