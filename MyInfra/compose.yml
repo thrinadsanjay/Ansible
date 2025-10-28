@@ -1,5 +1,5 @@
 include:
   - compose.db.yml
-  - compose.app.yml
+  - compose.app_build.yml
   - compose.auth.yml
   #- compose.web.yml

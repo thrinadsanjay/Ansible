@@ -1,0 +1,83 @@
+name: myinfra
+services:
+  semaphore:
+    build:
+      context: semaphore
+      dockerfile: Dockerfile
+    #image: semaphoreui/semaphore:latest
+    #image: semaphoreui/semaphore:v2.16.18
+    #image: public.ecr.aws/semaphore/pro/server:v2.16.18
+    container_name: semaphore
+    environment:
+        SEMAPHORE_DB_DIALECT: mysql
+        SEMAPHORE_DB_HOST: mysql
+        SEMAPHORE_DB_NAME: semaphore
+        SEMAPHORE_DB_USER: semaphore
+        SEMAPHORE_DB_PASS: semaphorePassw0rd
+        SEMAPHORE_ADMIN: admin
+        SEMAPHORE_ADMIN_PASSWORD: admin
+        SEMAPHORE_ADMIN_NAME: Admin
+        SEMAPHORE_ADMIN_EMAIL: admin@localhost
+        SEMAPHORE_KEY_ENCRYPTION: "0JSrYBKS6z0+Rg3js39tjr+1+f5pG0I/Abgy5/jaEDA="
+        SEMAPHORE_AUTH_TYPE: oidc
+        SEMAPHORE_OIDC_PROVIDER_NAME: keycloak
+        SEMAPHORE_OIDC_CLIENT_ID: semaphore
+        SEMAPHORE_OIDC_CLIENT_SECRET: semaphoreclientsecret
+        SEMAPHORE_OIDC_DISCOVERY_URL: http://keycloak:8080/realms/semaphore/.well-known/openid-configuration
+        SEMAPHORE_OIDC_REDIRECT_URL: http://localhost:4000/api/auth/oidc/keycloak/redirect
+        ANSIBLE_HOST_KEY_CHECKING: "False"
+        ANSIBLE_CONFIG: /ansible/config/ansible.cfg
+        SEMAPHORE_LOG_LEVEL: debug
+        SEMAPHORE_LICENSE_KEY: "67365401-5f5b-4456-8b37-4275f6ac59b4"
+        # SEMAPHORE_EVENT_LOG_FORMAT: "raw"
+        SEMAPHORE_EVENT_LOG_ENABLED: "True"
+        SEMAPHORE_EVENT_LOGGER: "/tmp/semaphore/events.log"
+        # SEMAPHORE_TASK_LOG_FORMAT: json
+        SEMAPHORE_TASK_LOG_ENABLED: True
+        SEMAPHORE_TASK_LOGGER: "/tmp/semaphore/tasks.log"
+  
+    ports:
+        - 4000:3000
+    volumes:
+        - ./Semaphore/data:/var/lib/semaphore
+        - ./Semaphore/config:/etc/semaphore
+        - ./Semaphore/tmp:/tmp/semaphore
+        - ./Ansible/logging:/ansible/config
+    depends_on:
+        - mysql
+        - keycloak
+    networks:
+        - infra_network
+  grafana:
+    image: grafana/grafana:latest
+    container_name: grafana
+    environment:
+      - GF_SECURITY_ADMIN_USER=admin
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+      - GF_AUTH_DISABLE_LOGIN_FORM=false
+      - GF_AUTH_GENERIC_OAUTH_ENABLED=true
+      - GF_AUTH_GENERIC_OAUTH_NAME=Keycloak
+      - GF_AUTH_GENERIC_OAUTH_CLIENT_ID=grafana #${CLIENT_ID}
+      - GF_AUTH_GENERIC_OAUTH_CLIENT_SECRET=grafanaclientsecret
+      - GF_AUTH_GENERIC_OAUTH_AUTH_URL=http://localhost:8080/auth/realms/sanjay-lab/protocol/openid-connect/auth
+      - GF_AUTH_GENERIC_OAUTH_TOKEN_URL=http://keycloak:8080/auth/realms/sanjay-lab/protocol/openid-connect/token
+      - GF_AUTH_GENERIC_OAUTH_API_URL=http://keycloak:8080/auth/realms/sanjay-lab/protocol/openid-connect/userinfo
+      - GF_AUTH_GENERIC_OAUTH_LOGOUT_REDIRECT_URL=http://keycloak:8080/realms/sanjay-lab/protocol/openid-connect/logout
+      - GF_SERVER_ROOT_URL=http://localhost:3000
+      - GF_AUTH_GENERIC_OAUTH_SCOPES=openid profile email
+      - GF_AUTH_GENERIC_OAUTH_ROLE_ATTRIBUTE_PATH=contains(groups[*], 'admin') && 'Admin' || 'Viewer'
+    ports:
+      - "3000:3000"
+    volumes:
+      - grafana-data:/var/lib/grafana
+    depends_on:
+      - keycloak
+    restart: unless-stopped
+    networks:
+      - infra_network
+
+volumes:
+    grafana-data:
+    
+networks:
+    infra_network: {driver: "bridge"}
