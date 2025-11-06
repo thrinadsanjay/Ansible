@@ -1,0 +1,52 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:15
+    container_name: keycloak-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: keycloak
+      POSTGRES_USER: keycloak
+      POSTGRES_PASSWORD: strong_db_password
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    networks:
+      - infra-net
+
+  keycloak:
+    image: quay.io/keycloak/keycloak:26.0.0
+    container_name: keycloak
+    command: start --https-certificate-file=/opt/keycloak/certs/cert.pem --https-certificate-key-file=/opt/keycloak/certs/key.pem
+    environment:
+      KC_HOSTNAME: WS633157.admin.colruyt.int
+      KC_HOSTNAME_STRICT: false
+      KC_DB: postgres
+      KC_DB_URL_HOST: postgres
+      KC_DB_URL_DATABASE: keycloak
+      KC_DB_USERNAME: keycloak
+      KC_DB_PASSWORD: strong_db_password
+      KC_HEALTH_ENABLED: "true"
+      KC_METRICS_ENABLED: "true"
+      KC_HTTP_RELATIVE_PATH: /auth
+      KC_BOOTSTRAP_ADMIN_USERNAME: admin
+      KC_BOOTSTRAP_ADMIN_PASSWORD: admin
+    ports:
+      - "8433:8443"
+    depends_on:
+      - postgres
+    restart: unless-stopped
+    networks:
+      - infra-net
+    volumes:
+      #- ./keycloak/import:/opt/keycloak/data/import
+      - ./keycloak/certs:/opt/keycloak/certs
+      - keycloak-data:/opt/keycloak/data
+
+volumes:
+  postgres-data:
+  keycloak-data:
+
+networks:
+  infra-net:
+    driver: bridge
