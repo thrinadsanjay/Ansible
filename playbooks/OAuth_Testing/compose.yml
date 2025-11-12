@@ -22,23 +22,23 @@ services:
     networks:
       - infra-net
 
-  mysql:
-    image: mysql:8
-    container_name: semaphore-mysql
-    environment:
-        MYSQL_USER: semaphore
-        MYSQL_ROOT_PASSWORD: mysqlPassw0rd
-        MYSQL_PASSWORD: semaphorePassw0rd
-        MYSQL_DATABASE: semaphore
-    volumes:
-        - semaphore_mysql:/var/lib/mysql
-    networks:
-        - infra-net
-    healthcheck:
-        test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
-        interval: 5s
-        retries: 5
-        timeout: 5s
+  # mysql:
+  #   image: mysql:8
+  #   container_name: semaphore-mysql
+  #   environment:
+  #       MYSQL_USER: semaphore
+  #       MYSQL_ROOT_PASSWORD: mysqlPassw0rd
+  #       MYSQL_PASSWORD: semaphorePassw0rd
+  #       MYSQL_DATABASE: semaphore
+  #   volumes:
+  #       - semaphore_mysql:/var/lib/mysql
+  #   networks:
+  #       - infra-net
+  #   healthcheck:
+  #       test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+  #       interval: 5s
+  #       retries: 5
+  #       timeout: 5s
 
   keycloak:
     image: quay.io/keycloak/keycloak:26.0.0
@@ -66,33 +66,33 @@ services:
       - ./keycloak/import:/opt/keycloak/data/import
       - keycloak-data:/opt/keycloak/data
 
-  semaphore:
-    container_name: semaphore
-    ports:
-        - "3001:3000"
-    depends_on:
-        - mysql
-    image: semaphoreui/semaphore:latest
-    environment:
-        SEMAPHORE_DB_DIALECT: mysql
-        SEMAPHORE_DB_HOST: mysql
-        SEMAPHORE_DB_NAME: semaphore
-        SEMAPHORE_DB_USER: semaphore
-        SEMAPHORE_DB_PASS: semaphorePassw0rd
-        SEMAPHORE_ADMIN: admin
-        SEMAPHORE_ADMIN_PASSWORD: Admin123
-        SEMAPHORE_ADMIN_NAME: Admin
-        SEMAPHORE_ADMIN_EMAIL: admin@localhost
-        SEMAPHORE_KEY_ENCRYPTION: "0JSrYBKS6z0+Rg3js39tjr+1+f5pG0I/Abgy5/jaEDA="
-        ANSIBLE_HOST_KEY_CHECKING: "False"
-        ANSIBLE_CONFIG: /ansible/config/ansible.cfg
-    volumes:
-        - ./Semaphore/data:/var/lib/semaphore
-        - ./Semaphore/config:/etc/semaphore
-        - ./Semaphore/tmp:/tmp/semaphore
-        - ./Ansible/logging:/ansible/config
-    networks:
-        - infra-net
+  # semaphore:
+  #   container_name: semaphore
+  #   ports:
+  #       - "3001:3000"
+  #   depends_on:
+  #       - mysql
+  #   image: semaphoreui/semaphore:latest
+  #   environment:
+  #       SEMAPHORE_DB_DIALECT: mysql
+  #       SEMAPHORE_DB_HOST: mysql
+  #       SEMAPHORE_DB_NAME: semaphore
+  #       SEMAPHORE_DB_USER: semaphore
+  #       SEMAPHORE_DB_PASS: semaphorePassw0rd
+  #       SEMAPHORE_ADMIN: admin
+  #       SEMAPHORE_ADMIN_PASSWORD: Admin123
+  #       SEMAPHORE_ADMIN_NAME: Admin
+  #       SEMAPHORE_ADMIN_EMAIL: admin@localhost
+  #       SEMAPHORE_KEY_ENCRYPTION: "0JSrYBKS6z0+Rg3js39tjr+1+f5pG0I/Abgy5/jaEDA="
+  #       ANSIBLE_HOST_KEY_CHECKING: "False"
+  #       ANSIBLE_CONFIG: /ansible/config/ansible.cfg
+  #   volumes:
+  #       - ./Semaphore/data:/var/lib/semaphore
+  #       - ./Semaphore/config:/etc/semaphore
+  #       - ./Semaphore/tmp:/tmp/semaphore
+  #       - ./Ansible/logging:/ansible/config
+  #   networks:
+  #       - infra-net
 
   grafana:
     image: grafana/grafana:latest
@@ -121,11 +121,43 @@ services:
     networks:
       - infra-net
 
+  influxdb:
+    container_name: influxdb
+    image: influxdb:enterprise
+    ports:
+      - '8086:8086'
+    volumes:
+      - influxdb:/var/lib/influxdb2
+      #- ./influxdb.conf:/etc/influxdb2/config.toml
+    restart: always
+    mem_limit: 10g
+    networks:
+      - infra-net
+    #command: ["influxd", "--config", "/etc/influxdb2/config.toml"]
+    environment:
+      - DOCKER_INFLUXDB_INIT_MODE=setup
+      - DOCKER_INFLUXDB_INIT_USERNAME=admin
+      - DOCKER_INFLUXDB_INIT_PASSWORD=admin123
+      - DOCKER_INFLUXDB_INIT_ORG=lab
+      - DOCKER_INFLUXDB_INIT_BUCKET=lab
+      - DOCKER_INFLUXDB_INIT_ADMIN_TOKEN=Secre1T0Ken
+      - INFLUXD_HTTP_AUTH_ENABLED=true
+      - INFLUXD_HTTP_OIDC_ENABLED=true
+      - INFLUXD_HTTP_OIDC_CLIENT_ID=influxdb
+      - INFLUXD_HTTP_OIDC_CLIENT_SECRET=influx-client-secret
+      - INFLUXD_HTTP_OIDC_AUTH_URL=http://localhost:8080/auth/realms/sanjay-lab/protocol/openid-connect/auth
+      - INFLUXD_HTTP_OIDC_TOKEN_URL=http://localhost:8080/auth/realms/sanjay-lab/protocol/openid-connect/token
+      - INFLUXD_HTTP_OIDC_USERINFO_URL=http://localhost:8080/auth/realms/sanjay-lab/protocol/openid-connect/userinfo
+      - INFLUXD_HTTP_OIDC_REDIRECT_URL=http://localhost:8086/oauth/callback
+      - INFLUXD_HTTP_OIDC_SCOPES=openid,profile,email,roles
+
+
 volumes:
   postgres-data:
   keycloak-data:
   grafana-data:
   semaphore_mysql:
+  influxdb:
 
 networks:
   infra-net:

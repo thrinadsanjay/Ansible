@@ -18,6 +18,22 @@
       "publicClient": false,
       "serviceAccountsEnabled": false,
       "standardFlowEnabled": true
+    },
+    {
+      "clientId": "influxdb",
+      "name": "Influxdb",
+      "enabled": true,
+      "clientAuthenticatorType": "client-secret",
+      "secret": "influx-client-secret",
+      "redirectUris": [
+        "http://localhost:8086/*"
+      ],
+      "webOrigins": [
+        "http://localhost:8086"
+      ],
+      "publicClient": false,
+      "serviceAccountsEnabled": false,
+      "standardFlowEnabled": true
     }
   ]
 }

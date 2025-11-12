@@ -2,7 +2,7 @@ version: '3.8'
 
 services:
   postgres:
-    image: postgres:15
+    image: registry.gitlab-smarttechnics.colruytgroup.com/smart-technics-infra/keycloak/postgres:15
     container_name: keycloak-postgres
     restart: unless-stopped
     environment:
@@ -15,11 +15,11 @@ services:
       - infra-net
 
   keycloak:
-    image: quay.io/keycloak/keycloak:26.0.0
+    image: registry.gitlab-smarttechnics.colruytgroup.com/smart-technics-infra/keycloak/keycloak:26.0.0
     container_name: keycloak
     command: start --https-certificate-file=/opt/keycloak/certs/cert.pem --https-certificate-key-file=/opt/keycloak/certs/key.pem
     environment:
-      KC_HOSTNAME: WS633157.admin.colruyt.int
+      KC_HOSTNAME: svlipc2l.colruyt.int
       KC_HOSTNAME_STRICT: false
       KC_DB: postgres
       KC_DB_URL_HOST: postgres
@@ -32,7 +32,7 @@ services:
       KC_BOOTSTRAP_ADMIN_USERNAME: admin
       KC_BOOTSTRAP_ADMIN_PASSWORD: admin
     ports:
-      - "8433:8443"
+      - "8080:8443"
     depends_on:
       - postgres
     restart: unless-stopped
@@ -42,6 +42,8 @@ services:
       #- ./keycloak/import:/opt/keycloak/data/import
       - ./keycloak/certs:/opt/keycloak/certs
       - keycloak-data:/opt/keycloak/data
+
+  
 
 volumes:
   postgres-data:
