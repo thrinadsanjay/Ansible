@@ -2,7 +2,8 @@ version: '3.8'
 
 services:
   postgres:
-    image: registry.gitlab-smarttechnics.colruytgroup.com/smart-technics-infra/keycloak/postgres:15
+    #image: registry.gitlab-smarttechnics.colruytgroup.com/smart-technics-infra/keycloak/postgres:15
+    image: postgres:15
     container_name: keycloak-postgres
     restart: unless-stopped
     environment:
@@ -15,12 +16,14 @@ services:
       - infra-net
 
   keycloak:
-    image: registry.gitlab-smarttechnics.colruytgroup.com/smart-technics-infra/keycloak/keycloak:26.0.0
+    #image: registry.gitlab-smarttechnics.colruytgroup.com/smart-technics-infra/keycloak/keycloak:26.0.3
+    image: quay.io/keycloak/keycloak:26.0.0
     container_name: keycloak
-    command: start --https-certificate-file=/opt/keycloak/certs/cert.pem --https-certificate-key-file=/opt/keycloak/certs/key.pem
+    command: start-dev #--https-certificate-file=/opt/keycloak/certs/cert.pem --https-certificate-key-file=/opt/keycloak/certs/key.pem
     environment:
-      KC_HOSTNAME: svlipc2l.colruyt.int
-      KC_HOSTNAME_STRICT: false
+      #KC_HOSTNAME: svlipc2l.colruyt.int
+      #KC_HOSTNAME_STRICT: false
+      KEYCLOAK_BASE_URL: "http://keycloak:8080"
       KC_DB: postgres
       KC_DB_URL_HOST: postgres
       KC_DB_URL_DATABASE: keycloak
@@ -28,22 +31,53 @@ services:
       KC_DB_PASSWORD: strong_db_password
       KC_HEALTH_ENABLED: "true"
       KC_METRICS_ENABLED: "true"
-      KC_HTTP_RELATIVE_PATH: /auth
       KC_BOOTSTRAP_ADMIN_USERNAME: admin
       KC_BOOTSTRAP_ADMIN_PASSWORD: admin
     ports:
-      - "8080:8443"
+      - "8080:8080"
     depends_on:
       - postgres
     restart: unless-stopped
     networks:
       - infra-net
     volumes:
-      #- ./keycloak/import:/opt/keycloak/data/import
-      - ./keycloak/certs:/opt/keycloak/certs
+      - ./keycloak/import:/opt/keycloak/data/import
+      #- ./keycloak/certs:/opt/keycloak/certs
       - keycloak-data:/opt/keycloak/data
 
-  
+  web:
+    #image: python:3.9-slim 
+    build: 
+      context: .
+    image: localhost/flask-oauth:1.3
+    container_name: flask-web
+    #command: gunicorn --config /app/gunicorn_config.py wsgi:app
+    command: ["flask", "run", "--host=0.0.0.0", "--port=5000"]
+    restart: unless-stopped
+    volumes:
+      #- ./FastAPI:/app:z
+      #- ./FlaskApp:/app:z
+      - ./masupdown:/app:z
+      - ./masupdown/certs/keycloak.pem:/etc/ssl/certs/keycloak.crt:z
+    #working_dir: /app
+    environment:
+      SESSION_FILE_DIR: /app/flask_session
+      REQUESTS_CA_BUNDLE: "" #/app/certs/keycloak.sanjay-lab.online.crt
+      PYTHONHTTPSVERIFY: 0
+      openid_enabled: True
+      openid_name: "SSO"
+      openid_config_url: "https://keycloak.sanjay-lab.online/realms/sanjay-lab/.well-known/openid-configuration"
+      openid_client_id: "fastapi"
+      openid_secret: "vcFhaKgwaZUJwHEASDMgQuYdNh4p11Bc"
+      openid_scope: "openid profile email"
+      redirect_uri: "http://localhost:5000/callback"
+    # depends_on:
+    #   - keycloak
+    ports:
+      - "5000:5000"
+      - "3111:3111"
+    networks:
+      - infra-net
 
 volumes:
   postgres-data:
