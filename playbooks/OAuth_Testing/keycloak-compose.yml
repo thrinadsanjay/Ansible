@@ -49,7 +49,7 @@ services:
     #image: python:3.9-slim 
     build: 
       context: .
-    image: localhost/flask-oauth:1.3
+    image: localhost/flask-oauth:py3.9
     container_name: flask-web
     #command: gunicorn --config /app/gunicorn_config.py wsgi:app
     command: ["flask", "run", "--host=0.0.0.0", "--port=5000"]
@@ -68,7 +68,7 @@ services:
       openid_name: "SSO"
       openid_config_url: "https://keycloak.sanjay-lab.online/realms/sanjay-lab/.well-known/openid-configuration"
       openid_client_id: "fastapi"
-      openid_secret: "vcFhaKgwaZUJwHEASDMgQuYdNh4p11Bc"
+      openid_secret: "ygDeNwcwZAhbUEoK2DQxcYRnrXZTyq4u"
       openid_scope: "openid profile email"
       redirect_uri: "http://localhost:5000/callback"
     # depends_on:

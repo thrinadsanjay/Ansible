@@ -260,22 +260,19 @@ openid_client_id = os.environ.get("openid_client_id")
 openid_secret = os.environ.get("openid_secret")
 openid_scope = os.environ.get("openid_scope", "openid profile email")
 redirect_uri= os.environ.get("redirect_uri")
-SSL_CERT_FILE = CUSTOM_CA_BUNDLE = os.path.join(app.root_path, 'certs', 'keycloak.sanjay-lab.online.crt')
+#SSL_CERT_FILE = os.environ.get("SSL_CERT_FILE", None)
 
 
 # Initialize OAuth and Keycloak
-OAUTHLIB_INSECURE_TRANSPORT = 1  # Only for testing; remove in production
 oauth = OAuth(app)
 keycloak = oauth.register(
     name="keycloak",
     server_metadata_url=openid_config_url,
     client_id=openid_client_id,
     client_secret=openid_secret,
-    client_kwargs={"scope": openid_scope, "verify": SSL_CERT_FILE },
-    server_metadata_url_kwargs={"verify": SSL_CERT_FILE},
-    # fetch_token=lambda url, **kwargs: oauth.keycloak.fetch_token(
-    #     url, verify=SSL_CERT_FILE, **kwargs
-    #),
+    client_kwargs={"scope": openid_scope},# "verify": SSL_CERT_FILE },
+    #server_metadata_url_kwargs={"verify": SSL_CERT_FILE},
+
 )
 
 # Routes
@@ -310,7 +307,10 @@ def oauth_login():
 @app.route('/callback')
 def oauth_callback():
     token = keycloak.authorize_access_token()
-    userinfo =  token.get("userinfo")
+    print("TOKEN:", token)
+    if not token:
+        return "Error: token exchange failed", 400
+    userinfo =  keycloak.userinfo(token=token)
     session["user"] = userinfo.get("preferred_username")
     session["user_info"] = {
         "name": userinfo.get("preferred_username"),
@@ -334,6 +334,7 @@ def logout():
         redirect_after_logout = url_for('index', _external=True)
         session.clear()
         logout_redirect = url_for('index', _external=True)
+
 
         return redirect(
             f"{keycloak_logout_url}"
