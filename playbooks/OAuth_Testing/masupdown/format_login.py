@@ -242,17 +242,6 @@ LOGIN_TEMPLATE = """
 </html>
 """
 
-# Temp Variables
-
-# oauth_enabled = True
-# oauth_Name = "SSO"
-# openid_config_url = "http://192.168.59.252:8080/realms/sanjay-lab/.well-known/openid-configuration"
-# oauth_client_id = "fastapi"
-# oauth_secret = "WlnQrFAQm7oxdX0hl2SwJWc4HtfSj0NV"
-# scope = "openid profile email"
-
-# redirect_uri = "http://localhost:5000/callback"
-
 openid_enabled = os.environ.get("openid_enabled", "True")
 openid_name = os.environ.get("openid_name", "Keycloak")
 openid_config_url = os.environ.get("openid_config_url")
@@ -260,11 +249,10 @@ openid_client_id = os.environ.get("openid_client_id")
 openid_secret = os.environ.get("openid_secret")
 openid_scope = os.environ.get("openid_scope", "openid profile email")
 redirect_uri= os.environ.get("redirect_uri")
-SSL_CERT_FILE = CUSTOM_CA_BUNDLE = os.path.join(app.root_path, 'certs', 'keycloak.sanjay-lab.online.crt')
+SSL_CERT_FILE = os.environ.get("SSL_CERT_FILE", None)
 
 
 # Initialize OAuth and Keycloak
-OAUTHLIB_INSECURE_TRANSPORT = 1  # Only for testing; remove in production
 oauth = OAuth(app)
 keycloak = oauth.register(
     name="keycloak",
@@ -273,9 +261,6 @@ keycloak = oauth.register(
     client_secret=openid_secret,
     client_kwargs={"scope": openid_scope, "verify": SSL_CERT_FILE },
     server_metadata_url_kwargs={"verify": SSL_CERT_FILE},
-    # fetch_token=lambda url, **kwargs: oauth.keycloak.fetch_token(
-    #     url, verify=SSL_CERT_FILE, **kwargs
-    #),
 )
 
 # Routes
@@ -310,6 +295,17 @@ def oauth_login():
 @app.route('/callback')
 def oauth_callback():
     token = keycloak.authorize_access_token()
+    if not token:
+        app.logger.error('Failed to obtain token from Keycloak')
+        flash("Authentication failed")
+        return redirect(url_for('login'))
+
+    userinfo = keycloak.userinfo(token=token)
+    if not userinfo:
+            app.logger.error("Failed to fetch user info from Keycloak")
+            flash("Failed to retrieve user info")
+            return redirect(url_for('login'))
+
     userinfo =  token.get("userinfo")
     session["user"] = userinfo.get("preferred_username")
     session["user_info"] = {

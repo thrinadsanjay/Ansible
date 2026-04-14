@@ -1,0 +1,45 @@
+description: "Generate a License file for Activation of Ansible UI"
+
+fields:
+  - name: base_dir_input
+    type: text
+    label: Base Directory
+    required: true
+    default: "~/AnsibleUI-Licenses"
+    description: "Base directory where master and customer key/license files are stored"
+
+  - name: customer_name_input
+    type: text
+    label: Customer Name
+    required: true
+    description: "Full customer / organisation name (used in the license and as the folder slug)"
+
+  - name: license_key_input
+    type: text
+    label: License Key
+    required: true
+    default: "ACME-PRO-2026"
+    description: "Unique license key string (e.g. ACME-PRO-2026)"
+
+  - name: license_type_input
+    type: select
+    label: License Type
+    required: true
+    default: "pro"
+    options:
+      - "pro"
+      - "normal"
+    description: "License tier: 'pro' enables all Pro features; 'normal' is the standard tier"
+
+  - name: expiry_days_input
+    type: select
+    label: License Validity (Days)
+    required: true
+    default: 365
+    options:
+      - 30
+      - 60
+      - 120
+      - 180
+      - 365
+    description: "Number of days from today until the license expires"

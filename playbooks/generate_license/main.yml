@@ -1,0 +1,365 @@
+---
+# =============================================================================
+# Ansible UI — License Bundle Generator
+# =============================================================================
+# Produces a .lic file identical to the Python generate_license.py CLI.
+#
+# Key design decisions:
+#   - community.crypto modules handle key GENERATION only (standard RSA-2048 PEM)
+#   - ALL signing is done via an inline Python script to guarantee RSA-PSS/SHA256
+#     compatibility with the app's verify_bundle() / _verify_signature()
+#   - Canonical JSON = json.dumps(sorted_keys, compact) matching _canonical()
+#   - Variables passed to Python via environment variables (safe quoting)
+#
+# Variables (passed from AnsibleUI form via ui_schema.yml):
+#   base_dir_input       - where to store all license files
+#   customer_name_input  - customer display name
+#   license_key_input    - license key string
+#   license_type_input   - normal | pro
+#   expiry_days_input    - number of days until expiry
+# =============================================================================
+- name: Generate Ansible UI License Bundle
+  hosts: localhost
+  connection: local
+  gather_facts: true
+
+  vars:
+    ansible_python_interpreter: /usr/bin/python3
+
+    base_dir:      "{{ base_dir_input      | default('~/AnsibleUI-Licenses') }}"
+    customer_name: "{{ customer_name_input  | default('Test Customer') }}"
+    license_key:   "{{ license_key_input    | default('TEST-PRO-2026') }}"
+    license_type:  "{{ license_type_input   | default('pro') }}"
+    expiry_days:   "{{ expiry_days_input    | default(365) | int }}"
+
+    master_dir:    "{{ base_dir }}/master"
+    customers_dir: "{{ base_dir }}/customers"
+
+    # Slug: spaces / slashes → hyphens (matches Python _slug())
+    customer_slug: "{{ customer_name | replace(' ', '-') | replace('/', '-') }}"
+    customer_dir:  "{{ customers_dir }}/{{ customer_slug }}"
+
+    # Expiry date = today + expiry_days
+    expiry_date: "{{ '%Y-%m-%d' | strftime((ansible_date_time.epoch | int) + ((expiry_days | int) * 86400)) }}"
+
+  tasks:
+
+    # ──────────────────────────────────────────────────────────────────────────
+    # MASTER KEY PAIR  (one-time; skipped if files already exist)
+    # ──────────────────────────────────────────────────────────────────────────
+
+    - name: Create master directory
+      ansible.builtin.file:
+        path: "{{ master_dir }}"
+        state: directory
+        mode: '0700'
+
+    - name: Generate master private key  (skip if already exists)
+      community.crypto.openssl_privatekey:
+        path: "{{ master_dir }}/master_private.pem"
+        size: 2048
+        mode: '0600'
+        force: false
+
+    - name: Generate master public key  (skip if already exists)
+      community.crypto.openssl_publickey:
+        path: "{{ master_dir }}/master_public.pem"
+        privatekey_path: "{{ master_dir }}/master_private.pem"
+        force: false
+
+    # ──────────────────────────────────────────────────────────────────────────
+    # CUSTOMER KEY PAIR  (one per customer; skipped if files already exist)
+    # ──────────────────────────────────────────────────────────────────────────
+
+    - name: Create customer directory
+      ansible.builtin.file:
+        path: "{{ customer_dir }}"
+        state: directory
+        mode: '0700'
+
+    - name: Generate customer private key  (skip if already exists)
+      community.crypto.openssl_privatekey:
+        path: "{{ customer_dir }}/license_private.pem"
+        size: 2048
+        mode: '0600'
+        force: false
+
+    - name: Generate customer public key  (skip if already exists)
+      community.crypto.openssl_publickey:
+        path: "{{ customer_dir }}/license_public.pem"
+        privatekey_path: "{{ customer_dir }}/license_private.pem"
+        force: false
+
+    # ──────────────────────────────────────────────────────────────────────────
+    # SIGN + BUNDLE  — done entirely in Python to match RSA-PSS/SHA256 exactly
+    # ──────────────────────────────────────────────────────────────────────────
+    #
+    # Python replicates generate_license.py cmd_generate() exactly:
+    #   1. _canonical(license_payload)  → RSA-PSS sign with customer private key
+    #   2. license_data = {**payload, signature: lic_sig}
+    #   3. _canonical({license: license_data, public_key_pem: pub_pem})
+    #                                   → RSA-PSS sign with master private key
+    #   4. bundle = {version, public_key_pem, license, bundle_signature}
+    #   5. .lic  = HEADER + base64(json.dumps(bundle, indent=2)) + FOOTER
+
+    - name: Write Python signing script to /tmp
+      ansible.builtin.copy:
+        dest: /tmp/ansibleui_license_sign.py
+        mode: '0700'
+        content: |
+          #!/usr/bin/env python3
+          """
+          Inline signing script — called by Ansible, receives vars via env.
+          Produces output identical to  generate_license.py  cmd_generate().
+          """
+          import base64, json, os, sys
+          from pathlib import Path
+
+          try:
+              from cryptography.hazmat.primitives import hashes, serialization
+              from cryptography.hazmat.primitives.asymmetric import padding
+              from cryptography.hazmat.backends import default_backend
+              from cryptography.hazmat.primitives.serialization import load_pem_private_key
+          except ImportError:
+              print("ERROR: 'cryptography' package not installed.")
+              print("       Run:  pip install cryptography")
+              sys.exit(1)
+
+
+          def canonical(d):
+              """Deterministic sorted-key compact JSON — must match app _canonical()."""
+              return json.dumps(d, sort_keys=True, separators=(',', ':')).encode()
+
+
+          def sign(priv_key, data: bytes) -> str:
+              """RSA-PSS SHA256, MAX_LENGTH salt — must match app _sign()."""
+              sig = priv_key.sign(
+                  data,
+                  padding.PSS(
+                      mgf=padding.MGF1(hashes.SHA256()),
+                      salt_length=padding.PSS.MAX_LENGTH,
+                  ),
+                  hashes.SHA256(),
+              )
+              return base64.b64encode(sig).decode()
+
+
+          # ── Read env vars ──────────────────────────────────────────────────
+          cust_dir    = Path(os.environ['LICENSE_CUST_DIR']).expanduser()
+          master_dir  = Path(os.environ['LICENSE_MASTER_DIR']).expanduser()
+          customer    = os.environ['LICENSE_CUSTOMER']
+          lic_key     = os.environ['LICENSE_KEY']
+          lic_type    = os.environ['LICENSE_TYPE']
+          expiry      = os.environ['LICENSE_EXPIRY']
+          slug        = os.environ['LICENSE_SLUG']
+
+          # ── Load keys ──────────────────────────────────────────────────────
+          cust_priv   = load_pem_private_key(
+              (cust_dir / 'license_private.pem').read_bytes(),
+              password=None, backend=default_backend()
+          )
+          master_priv = load_pem_private_key(
+              (master_dir / 'master_private.pem').read_bytes(),
+              password=None, backend=default_backend()
+          )
+          pub_pem = (cust_dir / 'license_public.pem').read_text()
+
+          # ── Step 1: sign license payload ───────────────────────────────────
+          lic_payload = {
+              'expiry':      expiry,
+              'issued_to':   customer,
+              'license_key': lic_key,
+              'type':        lic_type,
+          }
+          lic_sig  = sign(cust_priv, canonical(lic_payload))
+          lic_data = {**lic_payload, 'signature': lic_sig}
+
+          # Save plain license.json for reference / auditing
+          (cust_dir / 'license.json').write_text(json.dumps(lic_data, indent=2))
+
+          # ── Step 2: sign bundle payload with master key ────────────────────
+          # Signed payload includes the full license (with its signature) AND
+          # the customer public key — so neither can be tampered with.
+          bundle_signing_payload = {
+              'license':        lic_data,
+              'public_key_pem': pub_pem,
+          }
+          bundle_sig = sign(master_priv, canonical(bundle_signing_payload))
+
+          # ── Step 3: assemble + encode bundle ──────────────────────────────
+          bundle = {
+              'version':          1,
+              'public_key_pem':   pub_pem,
+              'license':          lic_data,
+              'bundle_signature': bundle_sig,
+          }
+          b64 = base64.b64encode(json.dumps(bundle, indent=2).encode()).decode()
+          lic_content = (
+              '-----BEGIN ANSIBLE UI LICENSE-----\n'
+              + b64 + '\n'
+              + '-----END ANSIBLE UI LICENSE-----\n'
+          )
+          (cust_dir / f'{slug}.lic').write_text(lic_content)
+
+          print(f'SUCCESS')
+          print(f'  Customer : {customer}')
+          print(f'  Type     : {lic_type.upper()}')
+          print(f'  Key      : {lic_key}')
+          print(f'  Expires  : {expiry}')
+          print(f'  File     : {cust_dir}/{slug}.lic')
+
+    - name: Sign license payload and build .lic bundle
+      ansible.builtin.command:
+        cmd: python3 /tmp/ansibleui_license_sign.py
+      environment:
+        LICENSE_CUSTOMER:    "{{ customer_name }}"
+        LICENSE_KEY:         "{{ license_key }}"
+        LICENSE_TYPE:        "{{ license_type }}"
+        LICENSE_EXPIRY:      "{{ expiry_date }}"
+        LICENSE_CUST_DIR:    "{{ customer_dir }}"
+        LICENSE_MASTER_DIR:  "{{ master_dir }}"
+        LICENSE_SLUG:        "{{ customer_slug }}"
+      register: sign_result
+      changed_when: "'SUCCESS' in sign_result.stdout"
+
+    - name: Remove temp signing script
+      ansible.builtin.file:
+        path: /tmp/ansibleui_license_sign.py
+        state: absent
+
+    # ──────────────────────────────────────────────────────────────────────────
+    # VERIFY  — re-read and verify both signatures using the same Python logic
+    # ──────────────────────────────────────────────────────────────────────────
+
+    - name: Write Python verify script to /tmp
+      ansible.builtin.copy:
+        dest: /tmp/ansibleui_license_verify.py
+        mode: '0700'
+        content: |
+          #!/usr/bin/env python3
+          import base64, json, os, sys
+          from pathlib import Path
+
+          from cryptography.hazmat.primitives import hashes, serialization
+          from cryptography.hazmat.primitives.asymmetric import padding
+          from cryptography.hazmat.backends import default_backend
+          from cryptography.hazmat.primitives.serialization import load_pem_public_key
+
+
+          def canonical(d):
+              return json.dumps(d, sort_keys=True, separators=(',', ':')).encode()
+
+
+          def verify(pub_key, data: bytes, sig_b64: str) -> bool:
+              try:
+                  pub_key.verify(
+                      base64.b64decode(sig_b64), data,
+                      padding.PSS(
+                          mgf=padding.MGF1(hashes.SHA256()),
+                          salt_length=padding.PSS.MAX_LENGTH,
+                      ),
+                      hashes.SHA256(),
+                  )
+                  return True
+              except Exception:
+                  return False
+
+
+          cust_dir   = Path(os.environ['LICENSE_CUST_DIR']).expanduser()
+          master_dir = Path(os.environ['LICENSE_MASTER_DIR']).expanduser()
+          slug       = os.environ['LICENSE_SLUG']
+
+          lic_file = cust_dir / f'{slug}.lic'
+          text = lic_file.read_text().strip()
+          lines = [l for l in text.splitlines() if not l.startswith('-----')]
+          bundle = json.loads(base64.b64decode(''.join(lines)).decode())
+
+          pub_pem_str  = bundle['public_key_pem']
+          lic_data     = bundle['license']
+          bundle_sig   = bundle['bundle_signature']
+
+          # Verify master (bundle) signature
+          master_pub = load_pem_public_key(
+              (master_dir / 'master_public.pem').read_bytes(),
+              backend=default_backend()
+          )
+          bsp_ok = verify(master_pub, canonical({'license': lic_data, 'public_key_pem': pub_pem_str}), bundle_sig)
+
+          # Verify inner license signature
+          cust_pub    = load_pem_public_key(pub_pem_str.encode(), backend=default_backend())
+          lic_payload = {k: v for k, v in lic_data.items() if k != 'signature'}
+          lic_ok      = verify(cust_pub, canonical(lic_payload), lic_data['signature'])
+
+          print('BUNDLE_SIG='  + ('VALID' if bsp_ok else 'INVALID'))
+          print('LICENSE_SIG=' + ('VALID' if lic_ok else 'INVALID'))
+
+          if not bsp_ok or not lic_ok:
+              sys.exit(1)
+
+    - name: Verify generated .lic bundle
+      ansible.builtin.command:
+        cmd: python3 /tmp/ansibleui_license_verify.py
+      environment:
+        LICENSE_CUST_DIR:   "{{ customer_dir }}"
+        LICENSE_MASTER_DIR: "{{ master_dir }}"
+        LICENSE_SLUG:       "{{ customer_slug }}"
+      register: verify_result
+      changed_when: false
+
+    - name: Remove temp verify script
+      ansible.builtin.file:
+        path: /tmp/ansibleui_license_verify.py
+        state: absent
+
+    # ──────────────────────────────────────────────────────────────────────────
+    # COPY .lic TO PLAYBOOK OUTPUT DIR  (so AnsibleUI can offer it for download)
+    # ──────────────────────────────────────────────────────────────────────────
+    # playbook_dir is an Ansible magic variable that always points to the
+    # directory containing this main.yml file.  The executor's file-change
+    # detector scans that directory, so any new/changed file there will
+    # appear in the Generated Files bar after the run.
+
+    - name: Create output directory in playbook dir
+      ansible.builtin.file:
+        path: "{{ playbook_dir }}/output"
+        state: directory
+        mode: '0755'
+
+    - name: Copy .lic bundle to playbook output dir for download
+      ansible.builtin.copy:
+        src: "{{ customer_dir }}/{{ customer_slug }}.lic"
+        dest: "{{ playbook_dir }}/output/{{ customer_slug }}.lic"
+        remote_src: true
+        mode: '0644'
+
+    # ──────────────────────────────────────────────────────────────────────────
+    # READ MASTER PUBLIC KEY  (for embedding in app/core/licensing.py)
+    # ──────────────────────────────────────────────────────────────────────────
+
+    - name: Read master public key
+      ansible.builtin.slurp:
+        src: "{{ master_dir }}/master_public.pem"
+      register: master_pub_slurp
+
+    # ──────────────────────────────────────────────────────────────────────────
+    # FINAL SUMMARY
+    # ──────────────────────────────────────────────────────────────────────────
+
+    - name: Final summary
+      ansible.builtin.debug:
+        msg:
+          - "======================================================"
+          - "  LICENSE BUNDLE GENERATED SUCCESSFULLY"
+          - "======================================================"
+          - "  Customer  : {{ customer_name }}"
+          - "  Type      : {{ license_type | upper }}"
+          - "  Key       : {{ license_key }}"
+          - "  Expires   : {{ expiry_date }}"
+          - "  Bundle    : {{ customer_dir }}/{{ customer_slug }}.lic"
+          - "  Bundle sig: {{ (verify_result.stdout | regex_search('BUNDLE_SIG=(\\w+)', '\\1'))[0] }}"
+          - "  License sig: {{ (verify_result.stdout | regex_search('LICENSE_SIG=(\\w+)', '\\1'))[0] }}"
+          - "------------------------------------------------------"
+          - "  NEXT STEP: embed master_public.pem in app/core/licensing.py"
+          - "  as MASTER_PUBLIC_KEY_PEM, then redeploy the app."
+          - "------------------------------------------------------"
+          - "{{ master_pub_slurp['content'] | b64decode }}"

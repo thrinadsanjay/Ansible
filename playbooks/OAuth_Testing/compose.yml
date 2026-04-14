@@ -1,26 +1,28 @@
 version: '3.8'
+name: oauth_testing
 
 x-common: &common
-  REALM_NAME: sanjay-lab
-  CLIENT_ID: grafana
-  KEYCLOAK_INTERNAL_URL: http://keycloak:8080/realms/sanjay-lab
-  # Store secrets in a separate .env file for security
-  # CLIENT_SECRET: grafana-client-secret
+  environment:
+    - KEYCLOAK_HOME="https://keycloak.sanjay-lab.online/"
+    - REALM_NAME="sanjay-lab"
+    - KEYCLOAK_URL="${KEYCLOAK_HOME}/realms/${REALM_NAME}"
+    # Store secrets in a separate .env file for security
+    # CLIENT_SECRET: grafana-client-secret
 
 services:
 
-  postgres:
-    image: postgres:15
-    container_name: keycloak-postgres
-    restart: unless-stopped
-    environment:
-      POSTGRES_DB: keycloak
-      POSTGRES_USER: keycloak
-      POSTGRES_PASSWORD: strong_db_password
-    volumes:
-      - postgres-data:/var/lib/postgresql/data
-    networks:
-      - infra-net
+  # postgres:
+  #   image: postgres:15
+  #   container_name: keycloak-postgres
+  #   restart: unless-stopped
+  #   environment:
+  #     POSTGRES_DB: keycloak
+  #     POSTGRES_USER: keycloak
+  #     POSTGRES_PASSWORD: strong_db_password
+  #   volumes:
+  #     - postgres-data:/var/lib/postgresql/data
+  #   networks:
+  #     - infra-net
 
   # mysql:
   #   image: mysql:8
@@ -40,31 +42,31 @@ services:
   #       retries: 5
   #       timeout: 5s
 
-  keycloak:
-    image: quay.io/keycloak/keycloak:26.0.0
-    container_name: keycloak
-    command: start-dev --import-realm
-    environment:
-      KC_DB: postgres
-      KC_DB_URL_HOST: postgres
-      KC_DB_URL_DATABASE: keycloak
-      KC_DB_USERNAME: keycloak
-      KC_DB_PASSWORD: strong_db_password
-      KC_HEALTH_ENABLED: "true"
-      KC_METRICS_ENABLED: "true"
-      KC_HTTP_RELATIVE_PATH: /auth
-      KC_BOOTSTRAP_ADMIN_USERNAME: admin
-      KC_BOOTSTRAP_ADMIN_PASSWORD: admin
-    ports:
-      - "8080:8080"
-    depends_on:
-      - postgres
-    restart: unless-stopped
-    networks:
-      - infra-net
-    volumes:
-      - ./keycloak/import:/opt/keycloak/data/import
-      - keycloak-data:/opt/keycloak/data
+  # keycloak:
+  #   image: quay.io/keycloak/keycloak:26.0.0
+  #   container_name: keycloak
+  #   command: start-dev --import-realm
+  #   environment:
+  #     KC_DB: postgres
+  #     KC_DB_URL_HOST: postgres
+  #     KC_DB_URL_DATABASE: keycloak
+  #     KC_DB_USERNAME: keycloak
+  #     KC_DB_PASSWORD: strong_db_password
+  #     KC_HEALTH_ENABLED: "true"
+  #     KC_METRICS_ENABLED: "true"
+  #     KC_HTTP_RELATIVE_PATH: /auth
+  #     KC_BOOTSTRAP_ADMIN_USERNAME: admin
+  #     KC_BOOTSTRAP_ADMIN_PASSWORD: admin
+  #   ports:
+  #     - "8080:8080"
+  #   depends_on:
+  #     - postgres
+  #   restart: unless-stopped
+  #   networks:
+  #     - infra-net
+  #   volumes:
+  #     - ./keycloak/import:/opt/keycloak/data/import
+  #     - keycloak-data:/opt/keycloak/data
 
   # semaphore:
   #   container_name: semaphore
@@ -102,54 +104,55 @@ services:
       - GF_SECURITY_ADMIN_PASSWORD=admin
       - GF_AUTH_DISABLE_LOGIN_FORM=false
       - GF_AUTH_GENERIC_OAUTH_ENABLED=true
-      - GF_AUTH_GENERIC_OAUTH_NAME=Keycloak
-      - GF_AUTH_GENERIC_OAUTH_CLIENT_ID=grafana #${CLIENT_ID}
-      - GF_AUTH_GENERIC_OAUTH_CLIENT_SECRET=grafana-client-secret
-      - GF_AUTH_GENERIC_OAUTH_AUTH_URL=http://localhost:8080/auth/realms/sanjay-lab/protocol/openid-connect/auth
-      - GF_AUTH_GENERIC_OAUTH_TOKEN_URL=http://keycloak:8080/auth/realms/sanjay-lab/protocol/openid-connect/token
-      - GF_AUTH_GENERIC_OAUTH_API_URL=http://keycloak:8080/auth/realms/sanjay-lab/protocol/openid-connect/userinfo
-      #- GF_AUTH_SIGNOUT_REDIRECT_URL=http://keycloak:8080/auth/realms/sanjay-lab/protocol/openid-connect/logout
-      - GF_SERVER_ROOT_URL=http://localhost:3001
+      - GF_AUTH_GENERIC_OAUTH_NAME=SSO
+      - GF_AUTH_GENERIC_OAUTH_CLIENT_ID=lab-grafana #${CLIENT_ID}
+      - GF_AUTH_GENERIC_OAUTH_CLIENT_SECRET=OguQaIEMBQUJNQ1jblhWQekMWdJ2DabC
+      - GF_AUTH_GENERIC_OAUTH_AUTH_URL=${KEYCLOAK_URL}/protocol/openid-connect/auth
+      - GF_AUTH_GENERIC_OAUTH_TOKEN_URL=${KEYCLOAK_URL}/protocol/openid-connect/token
+      - GF_AUTH_GENERIC_OAUTH_API_URL=${KEYCLOAK_URL}/protocol/openid-connect/userinfo
+      - GF_AUTH_SIGNOUT_REDIRECT_URL=${KEYCLOAK_URL}/protocol/openid-connect/logout
+      - GF_SERVER_ROOT_URL=http://localhost:3000
+      - GF_AUTH_GENERIC_OAUTH_SCOPE=openid profile email
       - GF_AUTH_GENERIC_OAUTH_ROLE_ATTRIBUTE_PATH=contains(groups[*], 'admin') && 'Admin' || 'Viewer'
     ports:
       - "3000:3000"
     volumes:
       - grafana-data:/var/lib/grafana
-    depends_on:
-      - keycloak
+    # depends_on:
+    #   - keycloak
     restart: unless-stopped
     networks:
       - infra-net
 
-  influxdb:
-    container_name: influxdb
-    image: influxdb:enterprise
-    ports:
-      - '8086:8086'
-    volumes:
-      - influxdb:/var/lib/influxdb2
-      #- ./influxdb.conf:/etc/influxdb2/config.toml
-    restart: always
-    mem_limit: 10g
-    networks:
-      - infra-net
-    #command: ["influxd", "--config", "/etc/influxdb2/config.toml"]
-    environment:
-      - DOCKER_INFLUXDB_INIT_MODE=setup
-      - DOCKER_INFLUXDB_INIT_USERNAME=admin
-      - DOCKER_INFLUXDB_INIT_PASSWORD=admin123
-      - DOCKER_INFLUXDB_INIT_ORG=lab
-      - DOCKER_INFLUXDB_INIT_BUCKET=lab
-      - DOCKER_INFLUXDB_INIT_ADMIN_TOKEN=Secre1T0Ken
-      - INFLUXD_HTTP_AUTH_ENABLED=true
-      - INFLUXD_HTTP_OIDC_ENABLED=true
-      - INFLUXD_HTTP_OIDC_CLIENT_ID=influxdb
-      - INFLUXD_HTTP_OIDC_CLIENT_SECRET=influx-client-secret
-      - INFLUXD_HTTP_OIDC_AUTH_URL=http://localhost:8080/auth/realms/sanjay-lab/protocol/openid-connect/auth
-      - INFLUXD_HTTP_OIDC_TOKEN_URL=http://localhost:8080/auth/realms/sanjay-lab/protocol/openid-connect/token
-      - INFLUXD_HTTP_OIDC_USERINFO_URL=http://localhost:8080/auth/realms/sanjay-lab/protocol/openid-connect/userinfo
-      - INFLUXD_HTTP_OIDC_REDIRECT_URL=http://localhost:8086/oauth/callback
-      - INFLUXD_HTTP_OIDC_SCOPES=openid,profile,email,roles
+  # influxdb:
+  #   container_name: influxdb
+  #   image: influxdb:enterprise
+  #   ports:
+  #     - '8086:8086'
+  #   volumes:
+  #     - influxdb:/var/lib/influxdb2
+  #     #- ./influxdb.conf:/etc/influxdb2/config.toml
+  #   restart: always
+  #   mem_limit: 10g
+  #   networks:
+  #     - infra-net
+  #   #command: ["influxd", "--config", "/etc/influxdb2/config.toml"]
+  #   environment:
+  #     - DOCKER_INFLUXDB_INIT_MODE=setup
+  #     - DOCKER_INFLUXDB_INIT_USERNAME=admin
+  #     - DOCKER_INFLUXDB_INIT_PASSWORD=admin123
+  #     - DOCKER_INFLUXDB_INIT_ORG=lab
+  #     - DOCKER_INFLUXDB_INIT_BUCKET=lab
+  #     - DOCKER_INFLUXDB_INIT_ADMIN_TOKEN=Secre1T0Ken
+  #     - INFLUXD_HTTP_AUTH_ENABLED=true
+  #     - INFLUXD_HTTP_OIDC_ENABLED=true
+  #     - INFLUXD_HTTP_OIDC_CLIENT_ID=influxdb
+  #     - INFLUXD_HTTP_OIDC_CLIENT_SECRET=influx-client-secret
+  #     - INFLUXD_HTTP_OIDC_AUTH_URL=${KEYCLOAK_URL}/protocol/openid-connect/auth
+  #     - INFLUXD_HTTP_OIDC_TOKEN_URL=${KEYCLOAK_URL}/protocol/openid-connect/token
+  #     - INFLUXD_HTTP_OIDC_USERINFO_URL=${KEYCLOAK_URL}/protocol/openid-connect/userinfo
+  #     - INFLUXD_HTTP_OIDC_REDIRECT_URL=http://localhost:8086/oauth/callback
+  #     - INFLUXD_HTTP_OIDC_SCOPES=openid,profile,email,roles
 
 
 volumes:

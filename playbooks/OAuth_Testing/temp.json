@@ -1,0 +1,197 @@
+{
+	"id": "4914bf68-2215-487f-a8b8-a2a9556db6ca",
+	"deletedDateTime": null,
+	"appId": "41019c1c-992b-4d4f-b58f-f2db67c7bb19",
+	"applicationTemplateId": null,
+	"disabledByMicrosoftStatus": null,
+	"createdDateTime": "2025-11-28T08:43:23Z",
+	"displayName": "sanjaylab",
+	"description": null,
+	"groupMembershipClaims": "SecurityGroup, DirectoryRole",
+	"identifierUris": [
+		"api://41019c1c-992b-4d4f-b58f-f2db67c7bb19"
+	],
+	"isDeviceOnlyAuthSupported": null,
+	"isFallbackPublicClient": null,
+	"nativeAuthenticationApisEnabled": null,
+	"notes": null,
+	"publisherDomain": "sanjaychintakayalagmail.onmicrosoft.com",
+	"serviceManagementReference": null,
+	"signInAudience": "AzureADMultipleOrgs",
+	"tags": [],
+	"tokenEncryptionKeyId": null,
+	"samlMetadataUrl": null,
+	"defaultRedirectUri": null,
+	"certification": null,
+	"requestSignatureVerification": null,
+	"addIns": [],
+	"api": {
+		"acceptMappedClaims": null,
+		"knownClientApplications": [],
+		"requestedAccessTokenVersion": null,
+		"oauth2PermissionScopes": [],
+		"preAuthorizedApplications": []
+	},
+	"appRoles": [],
+	"info": {
+		"logoUrl": null,
+		"marketingUrl": null,
+		"privacyStatementUrl": null,
+		"supportUrl": null,
+		"termsOfServiceUrl": null
+	},
+	"keyCredentials": [],
+	"optionalClaims": {
+		"accessToken": [
+            {
+                "name": "given_name",
+                "source": null,
+                "essential": false,
+                "additionalProperties": []
+            },
+            {
+                "name": "family_name",
+                "source": null,
+                "essential": false,
+                "additionalProperties": []
+            },
+            {
+                "name": "email",
+                "source": null,
+                "essential": false,
+                "additionalProperties": []
+            },
+			{
+				"additionalProperties": [],
+				"essential": false,
+				"name": "groups",
+				"source": null
+			},
+			{
+				"additionalProperties": [],
+				"essential": false,
+				"name": "roles",
+				"source": null
+			}
+		],
+		"idToken": [
+			{
+				"additionalProperties": [],
+				"essential": false,
+				"name": "roles",
+				"source": null
+			},		
+			{
+				"additionalProperties": [],
+				"essential": false,
+				"name": "email",
+				"source": null
+			},
+			
+			{
+				"additionalProperties": [],
+				"essential": false,
+				"name": "family_name",
+				"source": null
+			},
+			{
+				"additionalProperties": [],
+				"essential": false,
+				"name": "given_name",
+				"source": null
+			},
+			{
+				"additionalProperties": [],
+				"essential": false,
+				"name": "preferred_username",
+				"source": null
+			},
+			{
+				"additionalProperties": [],
+				"essential": false,
+				"name": "groups",
+				"source": null
+			}
+		],
+		"saml2Token": [
+			{
+				"additionalProperties": [
+					"sam_account_name"
+				],
+				"essential": false,
+				"name": "groups",
+				"source": null
+			}
+		]
+	},
+	"parentalControlSettings": {
+		"countriesBlockedForMinors": [],
+		"legalAgeGroupRule": "Allow"
+	},
+	"passwordCredentials": [
+		{
+			"customKeyIdentifier": null,
+			"displayName": "keycloak",
+			"endDateTime": "2026-05-27T07:48:49.53Z",
+			"hint": "rmI",
+			"keyId": "fe22fbeb-946c-4ce4-b5d0-650ac3937504",
+			"secretText": null,
+			"startDateTime": "2025-11-28T08:48:49.53Z"
+		}
+	],
+	"publicClient": {
+		"redirectUris": []
+	},
+	"requiredResourceAccess": [
+		{
+			"resourceAppId": "00000003-0000-0000-c000-000000000000",
+			"resourceAccess": [
+				{
+					"id": "64a6cdd6-aab1-4aaf-94b8-3cc8405e90d0",
+					"type": "Scope"
+				},
+				{
+					"id": "14dad69e-099b-42c9-810b-d002981feec1",
+					"type": "Scope"
+				},
+				{
+					"id": "e1fe6dd8-ba31-4d61-89e7-88639da4683d",
+					"type": "Scope"
+				}
+			]
+		}
+	],
+	"verifiedPublisher": {
+		"displayName": null,
+		"verifiedPublisherId": null,
+		"addedDateTime": null
+	},
+	"web": {
+		"homePageUrl": null,
+		"logoutUrl": null,
+		"redirectUris": [
+			"https://keycloak.sanjay-lab.online/realms/sanjay-lab/broker/oidc/endpoint"
+		],
+		"implicitGrantSettings": {
+			"enableAccessTokenIssuance": false,
+			"enableIdTokenIssuance": false
+		},
+		"redirectUriSettings": [
+			{
+				"uri": "https://keycloak.sanjay-lab.online/realms/sanjay-lab/broker/oidc/endpoint",
+				"index": null
+			}
+		]
+	},
+	"servicePrincipalLockConfiguration": {
+		"isEnabled": true,
+		"allProperties": true,
+		"credentialsWithUsageVerify": true,
+		"credentialsWithUsageSign": true,
+		"identifierUris": false,
+		"tokenEncryptionKeyId": true
+	},
+	"spa": {
+		"redirectUris": []
+	}
+}
