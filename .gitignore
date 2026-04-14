@@ -3,3 +3,4 @@ logging
 k3s-airgap-images-amd64.tar.zst
 playbooks/k3s/manifest/
 playbooks/k3s/k3s/
+__pycache__
