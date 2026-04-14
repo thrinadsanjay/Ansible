@@ -27,7 +27,7 @@
     keycloak_http_port: 8080
     keycloak_admin_user: "admin"
     keycloak_admin_password: "AdminPassw0rd!"
-    keycloak_realm: "testlab"
+    FT_KEYCLOAK_REALM: "testlab"
 
     # FreeIPA / LDAP settings (must be adapted to your FreeIPA)
     freeipa_host: "freeipa.example.com"
@@ -103,15 +103,15 @@
           Content-Type: "application/json"
         body_format: json
         body:
-          id: "{{ keycloak_realm }}"
-          realm: "{{ keycloak_realm }}"
+          id: "{{ FT_KEYCLOAK_REALM }}"
+          realm: "{{ FT_KEYCLOAK_REALM }}"
           enabled: true
       register: create_realm_resp
       failed_when: create_realm_resp.status not in [201, 409]  # 409 = already exists
 
     - name: Add FreeIPA (LDAP) user federation provider to Keycloak
       community.general.uri:
-        url: "http://127.0.0.1:{{ keycloak_http_port }}/admin/realms/{{ keycloak_realm }}/components"
+        url: "http://127.0.0.1:{{ keycloak_http_port }}/admin/realms/{{ FT_KEYCLOAK_REALM }}/components"
         method: POST
         headers:
           Authorization: "Bearer {{ keycloak_admin_token }}"
@@ -152,7 +152,7 @@
 
     - name: Create Grafana client in Keycloak
       community.general.uri:
-        url: "http://127.0.0.1:{{ keycloak_http_port }}/admin/realms/{{ keycloak_realm }}/clients"
+        url: "http://127.0.0.1:{{ keycloak_http_port }}/admin/realms/{{ FT_KEYCLOAK_REALM }}/clients"
         method: POST
         headers:
           Authorization: "Bearer {{ keycloak_admin_token }}"
@@ -174,7 +174,7 @@
 
     - name: Lookup Grafana client internal id
       community.general.uri:
-        url: "http://127.0.0.1:{{ keycloak_http_port }}/admin/realms/{{ keycloak_realm }}/clients?clientId={{ grafana_client_id }}"
+        url: "http://127.0.0.1:{{ keycloak_http_port }}/admin/realms/{{ FT_KEYCLOAK_REALM }}/clients?clientId={{ grafana_client_id }}"
         method: GET
         headers:
           Authorization: "Bearer {{ keycloak_admin_token }}"
@@ -186,7 +186,7 @@
 
     - name: Create client secret for Grafana (if not exists)
       community.general.uri:
-        url: "http://127.0.0.1:{{ keycloak_http_port }}/admin/realms/{{ keycloak_realm }}/clients/{{ grafana_client_internal_id }}/client-secret"
+        url: "http://127.0.0.1:{{ keycloak_http_port }}/admin/realms/{{ FT_KEYCLOAK_REALM }}/clients/{{ grafana_client_internal_id }}/client-secret"
         method: POST
         headers:
           Authorization: "Bearer {{ keycloak_admin_token }}"
@@ -218,9 +218,9 @@
           GF_AUTH_GENERIC_OAUTH_CLIENT_ID: "{{ grafana_client_id }}"
           GF_AUTH_GENERIC_OAUTH_CLIENT_SECRET: "{{ grafana_client_secret }}"
           GF_AUTH_GENERIC_OAUTH_SCOPES: "openid profile email"
-          GF_AUTH_GENERIC_OAUTH_AUTH_URL: "http://{{ keycloak_container_name }}:8080/realms/{{ keycloak_realm }}/protocol/openid-connect/auth"
-          GF_AUTH_GENERIC_OAUTH_TOKEN_URL: "http://{{ keycloak_container_name }}:8080/realms/{{ keycloak_realm }}/protocol/openid-connect/token"
-          GF_AUTH_GENERIC_OAUTH_API_URL: "http://{{ keycloak_container_name }}:8080/realms/{{ keycloak_realm }}/protocol/openid-connect/userinfo"
+          GF_AUTH_GENERIC_OAUTH_AUTH_URL: "http://{{ keycloak_container_name }}:8080/realms/{{ FT_KEYCLOAK_REALM }}/protocol/openid-connect/auth"
+          GF_AUTH_GENERIC_OAUTH_TOKEN_URL: "http://{{ keycloak_container_name }}:8080/realms/{{ FT_KEYCLOAK_REALM }}/protocol/openid-connect/token"
+          GF_AUTH_GENERIC_OAUTH_API_URL: "http://{{ keycloak_container_name }}:8080/realms/{{ FT_KEYCLOAK_REALM }}/protocol/openid-connect/userinfo"
           GF_SERVER_ROOT_URL: "http://localhost:{{ grafana_http_port }}"
       register: grafana_start
 

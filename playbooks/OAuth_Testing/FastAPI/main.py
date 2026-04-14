@@ -3,7 +3,7 @@
 from fastapi import FastAPI, Request
 from fastapi.responses import RedirectResponse, HTMLResponse
 from auth import oauth, setup_session
-from config import KEYCLOAK_URL, REALM, BASE_URL
+from config import FT_KEYCLOAK_URL, REALM, BASE_URL
 
 app = FastAPI()
 setup_session(app)
