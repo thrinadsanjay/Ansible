@@ -1,2 +1,14 @@
 PVEAPIToken=n8n@pve!n8n-token=b3f3a393-90ae-4581-8741-59f5c61a87e2
 AQ.Ab8RN6LUbSyrSLYgFUqNN_6Drltl0rHXr-uX51W4l6FUU9WXpg
+
+
+Create a VM on node prmx1pc01 with the following specs:
+- VM ID: 200
+- Name: ubuntu-test
+- CPU: 2 cores
+- RAM: 2048 MB
+- Disk: 20 GB on storage local-lvm
+- ISO: local:iso/ubuntu-24.04.3-desktop-amd64.iso
+- Network: virtio on bridge vmbr0
+- OS type: Linux
+- Start the VM after creation
